@@ -1,15 +1,16 @@
-using System;
+﻿using System;
 using System.Linq;
+using Halite2.hlt;
 
-namespace Halite2.hlt
+namespace BotMarfu.core.Moves
 {
-    public class Navigation
+    public class NavigationExtended
     {
-        public static ThrustMove NavigateShipToDock(
-                GameMap gameMap,
-                Ship ship,
-                Entity dockTarget,
-                int maxThrust)
+        public static ThrustMoveExtended NavigateShipToDock(
+               GameMap gameMap,
+               Ship ship,
+               Entity dockTarget,
+               int maxThrust)
         {
             int maxCorrections = Constants.MAX_NAVIGATION_CORRECTIONS;
             bool avoidObstacles = true;
@@ -19,7 +20,7 @@ namespace Halite2.hlt
             return NavigateShipTowardsTarget(gameMap, ship, targetPos, maxThrust, avoidObstacles, maxCorrections, angularStepRad);
         }
 
-        public static ThrustMove NavigateShipTowardsTarget(
+        public static ThrustMoveExtended NavigateShipTowardsTarget(
                 GameMap gameMap,
                 Ship ship,
                 Position targetPos,
@@ -56,14 +57,21 @@ namespace Halite2.hlt
                 thrust = maxThrust;
             }
 
-            var oldX = ship.GetXPos();
-            var oldY = ship.GetYPos();
-            var newX = oldX + thrust * Math.Cos(angleRad);
-            var newY = oldY + thrust * Math.Sin(angleRad);
+            var newPosition = ComputeNewPosition(ship, thrust, angleRad);
 
             int angleDeg = Util.AngleRadToDegClipped(angleRad);
 
-            return new ThrustMove(ship, angleDeg, thrust);
+            var move = new ThrustMove(ship, angleDeg, thrust);
+            return new ThrustMoveExtended(move, newPosition, angleRad);
+        }
+
+        public static Position ComputeNewPosition(Position current, int thrust, double angleRad)
+        {
+            var oldX = current.GetXPos();
+            var oldY = current.GetYPos();
+            var newX = oldX + thrust * Math.Cos(angleRad);
+            var newY = oldY + thrust * Math.Sin(angleRad);
+            return new Position(newX, newY);
         }
     }
 }

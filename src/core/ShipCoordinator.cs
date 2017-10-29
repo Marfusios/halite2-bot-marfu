@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using BotMarfu.core.Moves;
 using Halite2.hlt;
 
 namespace BotMarfu.core
@@ -48,7 +50,7 @@ namespace BotMarfu.core
             return planets.FirstOrDefault(x => x.GetId() == planetId);
         }
 
-        public void ComputeNextMove(int shipCount)
+        public void ComputeNextMove(int shipCount, ThrustMoveExtended[] futureMoves)
         {
             NextMove = null;
             UpdateUnchangedPosition();
@@ -64,7 +66,7 @@ namespace BotMarfu.core
             if (currentStatus == Ship.DockingStatus.Docked)
                 ComputeNextMoveForDocked(nearest, FindCurrentlyDockedPlanet(nearest));
             else
-                ComputeNextMoveForExpanding(_gameMap, player, nearest, shipCount);
+                ComputeNextMoveForExpanding(_gameMap, player, nearest, shipCount, futureMoves);
 
             _lastPosition = (Position)GetShip();
         }
@@ -81,7 +83,7 @@ namespace BotMarfu.core
             var positions = current.GetDockingSpots();
         }
 
-        private void ComputeNextMoveForExpanding(GameMap map, Player player, Planet[] nearest, int shipCount)
+        private void ComputeNextMoveForExpanding(GameMap map, Player player, Planet[] nearest, int shipCount, ThrustMoveExtended[] futureMoves)
         {
             // var nearestSafe = nearest.Skip(shipCount).ToArray();
             foreach (var planet in nearest)
@@ -91,7 +93,7 @@ namespace BotMarfu.core
                     var isOurs = planet.GetOwner() == player.GetId();
                     if (isOurs && !planet.IsFull())
                     {
-                        NextMove = MoveOrDock(map, planet);
+                        SetNextMove(MoveOrDock(map, planet), futureMoves);
                         break;
                     }
                 }
@@ -99,7 +101,7 @@ namespace BotMarfu.core
                 if(planet.IsOwned())
                     continue;
 
-                NextMove = MoveOrDock(map, planet);
+                SetNextMove(MoveOrDock(map, planet), futureMoves);
                 break;
             }
 
@@ -107,27 +109,60 @@ namespace BotMarfu.core
                 return;
 
             var nearestForeign = nearest.Where(x => x.GetOwner() != player.GetId()).ToArray();
-            foreach (var planet in nearestForeign)
+            if (nearestForeign.Length <= 0)
+                return;
+            var foreignPlanet = nearestForeign[(nearestForeign.Length - 1) % ShipId];
+
+            if (_unchangedPositionCount < 3)
             {
-                if (_unchangedPositionCount < 4)
+                var docked = foreignPlanet.GetDockedShips();
+                if (docked.Any())
                 {
-                    NextMove = MoveOrDock(map, planet);
-                    break;
+                    var targetId = docked[(docked.Count - 1) % ShipId];
+                    var target = _gameMap.GetShip(foreignPlanet.GetOwner(), targetId);
+                    SetNextMove(Move(_gameMap, target), futureMoves);
+                    return;
                 }
-                else
-                {
-                    NextMove = new ThrustMove(GetShip(), 90, Constants.MAX_SPEED / 2);
-                    break;
-                }
-                
+
+                SetNextMove(MoveOrDock(map, foreignPlanet), futureMoves);
+                return;
             }
+            var move = new ThrustMove(GetShip(), 90 + 180 * (ShipId % 2), Constants.MAX_SPEED - 1);
+            SetNextMove(move, futureMoves);
         }
 
         private Move MoveOrDock(GameMap map, Planet planet)
         {
             if(GetShip().CanDock(planet))
                 return new DockMove(GetShip(), planet);
-            return Navigation.NavigateShipToDock(map, GetShip(), planet, Constants.MAX_SPEED - 1) ?? NullMove.Null;
+            return NavigationExtended.NavigateShipToDock(map, GetShip(), planet, Constants.MAX_SPEED - 1) ?? NullMove.Null;
+        }
+
+        private Move Move(GameMap map, Entity entity)
+        {
+            return NavigationExtended.NavigateShipToDock(map, GetShip(), entity, Constants.MAX_SPEED - 1) ?? NullMove.Null;
+        }
+
+        private void SetNextMove(Move move, ThrustMoveExtended[] futureMoves)
+        {
+            if (move is ThrustMoveExtended m)
+            {
+                var collision = false;
+                foreach (var otherMove in futureMoves)
+                {
+                    var distance = m.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
+                    if (distance < m.GetShip().GetRadius() + 0.51)
+                    {
+                        collision = true;
+                        break;
+                    }
+                }
+                NextMove = collision ? m.Clone(Math.Max(m.GetThrust() - 2, 0)) : m;
+            }
+            else
+            {
+                NextMove = move;
+            }
         }
 
         private void UpdateUnchangedPosition()
