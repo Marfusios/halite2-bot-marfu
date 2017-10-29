@@ -49,8 +49,9 @@ namespace Halite2.hlt {
             return players[playerId].GetShip(entityId);
         }
 
-        public Planet GetPlanet(int entityId) {
-            return planets[entityId];
+        public Planet GetPlanet(int entityId)
+        {
+            return planets.ContainsKey(entityId) ? planets[entityId] : null;
         }
 
         public Dictionary<int, Planet> GetAllPlanets() {

@@ -13,6 +13,8 @@ namespace BotMarfu.core
         private Position _lastPosition;
         private int _unchangedPositionCount = 0;
 
+        private int _targetPlanet = -1;
+
         public ShipCoordinator(GameMap gameMap, int shipId)
         {
             Validations.ValidateInput(gameMap, nameof(GameMap));
@@ -85,35 +87,51 @@ namespace BotMarfu.core
 
         private void ComputeNextMoveForExpanding(GameMap map, Player player, Planet[] nearest, int shipCount, ThrustMoveExtended[] futureMoves)
         {
-            // var nearestSafe = nearest.Skip(shipCount).ToArray();
-            foreach (var planet in nearest)
+            if (_targetPlanet == -1)
             {
-                if (planet.IsOwned())
+                foreach (var planet in nearest)
                 {
-                    var isOurs = planet.GetOwner() == player.GetId();
-                    if (isOurs && !planet.IsFull())
+                    if (planet.IsOwned())
                     {
-                        SetNextMove(MoveOrDock(map, planet), futureMoves);
-                        break;
+                        var isOurs = planet.GetOwner() == player.GetId();
+                        if (isOurs && !planet.IsFull())
+                        {
+                            SetNextMove(MoveOrDock(map, planet), futureMoves);
+                            break;
+                        }
                     }
+
+                    if (planet.IsOwned())
+                        continue;
+
+                    SetNextMove(MoveOrDock(map, planet), futureMoves);
+                    break;
                 }
-
-                if(planet.IsOwned())
-                    continue;
-
-                SetNextMove(MoveOrDock(map, planet), futureMoves);
-                break;
             }
 
             if(NextMove != null || NextMove == NullMove.Null)
                 return;
 
-            var nearestForeign = nearest.Where(x => x.GetOwner() != player.GetId()).ToArray();
-            if (nearestForeign.Length <= 0)
-                return;
-            var foreignPlanet = nearestForeign[(nearestForeign.Length - 1) % ShipId];
-
-            if (_unchangedPositionCount < 3)
+            Planet foreignPlanet = null;
+            if (_targetPlanet == -1)
+            {
+                var nearestForeign = nearest.Where(x => x.GetOwner() != player.GetId()).ToArray();
+                if (nearestForeign.Length <= 0)
+                    return;
+                foreignPlanet = nearestForeign[(nearestForeign.Length - 1) % ShipId];
+                _targetPlanet = foreignPlanet.GetId();
+            }
+            else
+            {
+                foreignPlanet = _gameMap.GetPlanet(_targetPlanet);
+                if (foreignPlanet == null || foreignPlanet.GetHealth() <= 1)
+                {
+                    _targetPlanet = -1;
+                    return;
+                }
+            }
+            
+            if (_unchangedPositionCount < 4)
             {
                 var docked = foreignPlanet.GetDockedShips();
                 if (docked.Any())

@@ -14,7 +14,7 @@ namespace BotMarfu
         public static void Main(string[] args)
         {
             //while(!Debugger.IsAttached) { }
-            string name = args.Length > 0 ? args[0] : "Marfu_v5";
+            string name = args.Length > 0 ? args[0] : "Marfu_v6";
 
             var networking = new Networking();
             var gameMap = networking.Initialize(name);
