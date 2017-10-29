@@ -145,7 +145,8 @@ namespace BotMarfu.core
 
         private void SetNextMove(Move move, ThrustMoveExtended[] futureMoves)
         {
-            if (move is ThrustMoveExtended m)
+            var m = move as ThrustMoveExtended;
+            if (m != null)
             {
                 var collision = false;
                 foreach (var otherMove in futureMoves)
