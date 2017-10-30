@@ -87,7 +87,8 @@ namespace Halite2.hlt
         public GameMap Initialize(String botName)
         {
             int myId = int.Parse(ReadLine());
-            DebugLog.Initialize(new StreamWriter(String.Format("{0}_{1}.log", myId, botName)));
+            var time = DateTime.Now;
+            DebugLog.Initialize(new StreamWriter(String.Format("{0}_{1}_{2}.log", myId, botName, time.ToString("T").Replace(":", "_"))));
 
             Metadata inputStringMapSize = ReadLineIntoMetadata();
             int width = int.Parse(inputStringMapSize.Pop());

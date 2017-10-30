@@ -10,22 +10,32 @@ namespace BotMarfu
         {
             //while(!Debugger.IsAttached) { }
 
-            var botName = args.Length > 0 ? args[0] : "Marfu_v7";
-
-            var networking = new Networking();
-            var gameMap = networking.Initialize(botName);
-
-            var general = new General();
-            var coordinator = new Coordinator(gameMap, general);
-
-            for (; ; )
+            var round = 0;
+            try
             {
-                if (!UpdateTick(gameMap))
-                    return;
+                var botName = args.Length > 0 ? args[0] : "Marfu_v7";
 
-                var commands = coordinator.DoCommands();
+                var networking = new Networking();
+                var gameMap = networking.Initialize(botName);
 
-                Networking.SendMoves(commands);
+                var general = new General();
+                var coordinator = new Coordinator(gameMap, general);
+
+                for (; ; )
+                {
+                    round++;
+                    if (!UpdateTick(gameMap))
+                        return;
+
+                    var commands = coordinator.DoCommands(round);
+
+                    Networking.SendMoves(commands);
+                }
+            }
+            catch (Exception e)
+            {
+                DebugLog.AddLog(round, $"Exception: {e}");
+                throw;
             }
         }
 

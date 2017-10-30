@@ -21,6 +21,7 @@ namespace BotMarfu.core.Ships
             _playerId = map.GetMyPlayerId();
         }
 
+        public int ShipId => _shipId;
         public IMission CurrentMission => _currentMission;
         public Ship Ship => _map.GetShip(_playerId, _shipId);
 

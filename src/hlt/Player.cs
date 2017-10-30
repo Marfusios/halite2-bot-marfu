@@ -16,7 +16,7 @@ namespace Halite2.hlt {
         }
 
         public Ship GetShip(int entityId) {
-            return ships[entityId];
+            return ships.ContainsKey(entityId) ? ships[entityId] : null;
         }
 
         public int GetId() {

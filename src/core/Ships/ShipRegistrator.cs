@@ -11,15 +11,16 @@ namespace BotMarfu.core.Ships
 
         public void UpdateRegistration(IDictionary<int, Ship> currentShips)
         {
-            foreach (var shipToRegistration in _ships)
+            foreach (var ship in _ships.Values.ToArray())
             {
-                if (currentShips.ContainsKey(shipToRegistration.Key))
+                var id = ship.Captain.ShipId;
+                if (currentShips.ContainsKey(id))
                 {
-                    _ships[shipToRegistration.Key] = shipToRegistration.Value.Clone(ShipState.Normal);
+                    _ships[id] = ship.Clone(ShipState.Normal);
                 }
                 else
                 {
-                    _ships[shipToRegistration.Key] = shipToRegistration.Value.Clone(ShipState.Destroyed);
+                    _ships[id] = ship.Clone(ShipState.Destroyed);
                 }
             }
         }
@@ -38,6 +39,12 @@ namespace BotMarfu.core.Ships
         {
             RegisterIfNeeded(gameMap, shipId);
             return _ships[shipId];
+        }
+
+        public void Remove(int shipId)
+        {
+            if (_ships.ContainsKey(shipId))
+                _ships.Remove(shipId);
         }
 
         public IEnumerator<ShipRegistration> GetEnumerator()

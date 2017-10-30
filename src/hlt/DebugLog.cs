@@ -28,5 +28,10 @@ namespace Halite2.hlt
             {
             }
         }
+
+        public static void AddLog(int round, string message)
+        {
+            AddLog($"{round}\t\t{message}");
+        }
     }
 }
