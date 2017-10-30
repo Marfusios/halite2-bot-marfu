@@ -22,19 +22,19 @@ namespace BotMarfu.core.Headquarter
 
             if (_twoPlayers)
             {
-                InitialSettlersCount = 5;
+                InitialSettlersCount = 4;
                 NearestCount = 2;
                 SettlerRatio = 0.7;
-                AttackerRatio = 0.9;
+                AttackerRatio = 0.8;
                 DefenderRatio = 1;
 
                 return;
             }
 
-            InitialSettlersCount = 8;
+            InitialSettlersCount = 5;
             NearestCount = 2;
-            SettlerRatio = 0.9;
-            AttackerRatio = 0.9;
+            SettlerRatio = 0.7;
+            AttackerRatio = 0.7;
             DefenderRatio = 1;
         }
 
@@ -42,7 +42,7 @@ namespace BotMarfu.core.Headquarter
         {
             if(round % 5 != 0)
                 return;
-            if (round < 55)
+            if (round < 50)
                 return;
 
             var winningRatio = ComputeWinningRationPerPlayer(map);
