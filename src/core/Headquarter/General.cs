@@ -24,8 +24,8 @@ namespace BotMarfu.core.Headquarter
             {
                 InitialSettlersCount = 4;
                 NearestCount = 2;
-                SettlerRatio = 0.7;
-                AttackerRatio = 0.8;
+                SettlerRatio = 0.8;
+                AttackerRatio = 1;
                 DefenderRatio = 1;
 
                 return;
@@ -33,8 +33,8 @@ namespace BotMarfu.core.Headquarter
 
             InitialSettlersCount = 5;
             NearestCount = 2;
-            SettlerRatio = 0.7;
-            AttackerRatio = 0.7;
+            SettlerRatio = 0.95;
+            AttackerRatio = 1;
             DefenderRatio = 1;
         }
 
@@ -77,7 +77,7 @@ namespace BotMarfu.core.Headquarter
             {
                 //DebugLog.AddLog(round, $"[GENERAL] 2 - adjusting strategy for winning. Me: {me}, Second: {second.Value}");
                 SettlerRatio = 0.4;
-                AttackerRatio = 0.8;
+                AttackerRatio = 1;
             }
             else
             {
@@ -96,14 +96,14 @@ namespace BotMarfu.core.Headquarter
             if (first.Key == map.GetMyPlayerId())
             {
                 //DebugLog.AddLog(round, $"[GENERAL] 4 - adjusting strategy for winning. Me: {me}, Second: {second.Value}");
-                SettlerRatio = 0.6;
-                AttackerRatio = 0.8;
+                SettlerRatio = 0.7;
+                AttackerRatio = 1;
             }
             else
             {
                 //DebugLog.AddLog(round, $"[GENERAL] 4 - adjusting strategy for loosing. First: {first.Value}, Me: {me}");
-                SettlerRatio = 0.85;
-                AttackerRatio = 0.85;
+                SettlerRatio = 0.9;
+                AttackerRatio = 1;
             }
         }
     }
