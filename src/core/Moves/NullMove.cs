@@ -1,6 +1,6 @@
 ﻿using Halite2.hlt;
 
-namespace BotMarfu.core
+namespace BotMarfu.core.Moves
 {
     public class NullMove : Move
     {
