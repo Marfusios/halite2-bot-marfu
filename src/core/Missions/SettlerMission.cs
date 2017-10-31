@@ -1,4 +1,5 @@
-﻿using BotMarfu.core.Moves;
+﻿using System.Collections.Generic;
+using BotMarfu.core.Moves;
 using Halite2.hlt;
 
 namespace BotMarfu.core.Missions
@@ -12,6 +13,9 @@ namespace BotMarfu.core.Missions
         {
             _targetPlanetId = targetPlanetId;
         }
+
+        public bool EnemySpotted { get; }
+        public Dictionary<int, Ship> EnemiesInRange { get; }
 
         public bool CanExecute(GameMap map, Ship ship)
         {

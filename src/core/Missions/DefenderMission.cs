@@ -1,4 +1,5 @@
-﻿using BotMarfu.core.Moves;
+﻿using System.Collections.Generic;
+using BotMarfu.core.Moves;
 using Halite2.hlt;
 
 namespace BotMarfu.core.Missions
@@ -17,6 +18,9 @@ namespace BotMarfu.core.Missions
             _targetPlanetId = targetPlanetId;
             _maxRounds = maxRounds;
         }
+
+        public bool EnemySpotted { get; private set; }
+        public Dictionary<int, Ship> EnemiesInRange { get; private set; }
 
         public bool CanExecute(GameMap map, Ship ship)
         {
@@ -63,7 +67,7 @@ namespace BotMarfu.core.Missions
 
         private Move Move(GameMap map, Entity target, Ship ship)
         {
-            return NavigationExtended.NavigateShipToDock(map, ship, target, Constants.MAX_SPEED - 1) ?? NullMove.Null;
+            return NavigationExtended.NavigateShipToDock(map, ship, target, Constants.MAX_SPEED) ?? NullMove.Null;
         }
     }
 }

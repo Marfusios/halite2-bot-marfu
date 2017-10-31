@@ -12,9 +12,13 @@ namespace BotMarfu.core.Headquarter
         public double AttackerRatio { get; private set; }
         public double DefenderRatio { get; private set; }
 
-        public int InitialSettlersCount { get; private set; }
+        public int InitialSettlersCount { get; private set; } = 3;
         public int DefenderMaxRounds { get; } = 10;
-        public int NearestCount { get; private set; }
+        public int NearestPlanetCount { get; private set; } = 2;
+        public double NearestPlanetMaxDistanceRatio { get; private set; } = 1.5;
+        public int EnemyCheckRadius { get; private set; } = 2;
+        public int EnemyCheckRadiusForNew { get; private set; } = 3;
+        public int KillersPerEnemyShip { get; private set; } = 2;
 
         public void AdjustInitialStrategy(GameMap map)
         {
@@ -23,7 +27,7 @@ namespace BotMarfu.core.Headquarter
             if (_twoPlayers)
             {
                 InitialSettlersCount = 4;
-                NearestCount = 2;
+                NearestPlanetCount = 2;
                 SettlerRatio = 0.8;
                 AttackerRatio = 1;
                 DefenderRatio = 1;
@@ -32,10 +36,14 @@ namespace BotMarfu.core.Headquarter
             }
 
             InitialSettlersCount = 5;
-            NearestCount = 2;
+            NearestPlanetCount = 2;
             SettlerRatio = 0.95;
             AttackerRatio = 1;
             DefenderRatio = 1;
+
+            EnemyCheckRadius = 2;
+            EnemyCheckRadiusForNew = 4;
+            KillersPerEnemyShip = 2;
         }
 
         public void AdjustGlobalStrategy(GameMap map, int round)

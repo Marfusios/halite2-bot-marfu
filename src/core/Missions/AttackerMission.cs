@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using BotMarfu.core.Headquarter;
 using BotMarfu.core.Moves;
 using Halite2.hlt;
 
@@ -6,15 +8,20 @@ namespace BotMarfu.core.Missions
 {
     class AttackerMission : IMission
     {
+        private readonly Navigator _navigator;
         private readonly int _targetPlanetId;
 
         private int _lastAttackedShipId = -1;
         private int _lastVoidMoves;
 
-        public AttackerMission(int targetPlanetId)
+        public AttackerMission(int targetPlanetId, Navigator navigator)
         {
             _targetPlanetId = targetPlanetId;
+            _navigator = navigator;
         }
+
+        public bool EnemySpotted { get; private set; }
+        public Dictionary<int, Ship> EnemiesInRange { get; private set; }
 
         public bool CanExecute(GameMap map, Ship ship)
         {
@@ -27,6 +34,12 @@ namespace BotMarfu.core.Missions
                 return false;
             if (_lastVoidMoves > 5)
                 return false;
+            EnemiesInRange = _navigator.FindNearestEnemyShips(ship);
+            if (EnemiesInRange.Any())
+            {
+                EnemySpotted = true;
+                return false;
+            }
             return true;
         }
 
@@ -61,7 +74,7 @@ namespace BotMarfu.core.Missions
 
         private Move Move(GameMap map, Entity target, Ship ship)
         {
-            return NavigationExtended.NavigateShipToDock(map, ship, target, Constants.MAX_SPEED - 1) ?? NullMove.Null;
+            return NavigationExtended.NavigateShipToDock(map, ship, target, Constants.MAX_SPEED) ?? NullMove.Null;
         }
     }
 }

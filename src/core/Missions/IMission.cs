@@ -1,4 +1,5 @@
-﻿using Halite2.hlt;
+﻿using System.Collections.Generic;
+using Halite2.hlt;
 
 namespace BotMarfu.core.Missions
 {
@@ -6,5 +7,8 @@ namespace BotMarfu.core.Missions
     {
         bool CanExecute(GameMap map, Ship ship);
         Move Execute(GameMap map, Ship ship);
+
+        bool EnemySpotted { get; }
+        Dictionary<int, Ship> EnemiesInRange { get; }
     }
 }

@@ -13,6 +13,7 @@ namespace BotMarfu.core.Headquarter
         private readonly GameMap _map;
         private readonly General _general;
         private readonly Strategist _strategist;
+        private readonly Navigator _navigator;
         private readonly ShipRegistrator _shipRegistrator;
 
         private int _createdShips;
@@ -24,7 +25,8 @@ namespace BotMarfu.core.Headquarter
 
             _general = general;
             _map = map;
-            _strategist = new Strategist(_map, _general);
+            _navigator = new Navigator(map, _general);
+            _strategist = new Strategist(_map, _general, _navigator);
             _shipRegistrator = new ShipRegistrator();
 
             _general.AdjustInitialStrategy(_map);
@@ -33,6 +35,7 @@ namespace BotMarfu.core.Headquarter
         public Move[] DoCommands(int round)
         {
             _general.AdjustGlobalStrategy(_map, round);
+            _navigator.Update();
 
             var player = _map.GetMyPlayer();
             var ships = player.GetShips();
@@ -60,6 +63,7 @@ namespace BotMarfu.core.Headquarter
                 var correctedCommand = CorrectCommand(command, commands);
                 commands.Add(correctedCommand);
             }
+            // CorrectCommands(commands);
 
             //LogState(round);
             //_strategist.LogState(round);
@@ -102,6 +106,30 @@ namespace BotMarfu.core.Headquarter
             }
             return move;
         }
+
+        //private void CorrectCommands(List<Move> futureMoves)
+        //{
+        //    var extended = futureMoves
+        //        .Where(x => x is ThrustMoveExtended)
+        //        .Cast<ThrustMoveExtended>()
+        //        .ToArray();
+
+        //    foreach (var move in extended)
+        //    {
+        //        foreach (var otherMove in extended)
+        //        {
+        //            if(otherMove == move)
+        //                continue;
+
+        //            var distance = move.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
+        //            if (distance < move.GetShip().GetRadius() + 0.51)
+        //            {
+        //                futureMoves.Remove(move);
+        //                futureMoves.Add(move.Clone(Math.Max(move.GetThrust() - 2, 0)));
+        //            }
+        //        }
+        //    }
+        //}
 
         private void LogState(int round)
         {
