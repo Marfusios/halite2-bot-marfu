@@ -28,7 +28,7 @@ namespace BotMarfu.core.Headquarter
             {
                 InitialSettlersCount = 5;
                 NearestPlanetCount = 2;
-                SettlerRatio = 0.9;
+                SettlerRatio = 0.8;
                 AttackerRatio = 1;
                 DefenderRatio = 1;
 

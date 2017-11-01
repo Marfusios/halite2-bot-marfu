@@ -108,6 +108,14 @@ namespace BotMarfu.core.Headquarter
             return FindNearestEnemyShips(position, _general.EnemyCheckRadius);
         }
 
+        public Dictionary<int, Ship> FindNearestOurShips(Position firstEnemy, int radius)
+        {
+            var nearest = FindNearestShips(firstEnemy, radius);
+            return nearest
+                .Where(x => x.Value.GetOwner() == _map.GetMyPlayerId())
+                .ToDictionary(x => x.Key, y => y.Value);
+        }
+
         private void CopyShips(Dictionary<int, Ship> from, Dictionary<int, ShipTilePosition> to, int distance)
         {
             foreach (var ship in from)

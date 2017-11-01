@@ -21,6 +21,7 @@ namespace BotMarfu.core.Missions
 
         public bool EnemySpotted { get; private set; }
         public Dictionary<int, Ship> EnemiesInRange { get; private set; }
+        public bool Important { get; } = false;
 
         public bool CanExecute(GameMap map, Ship ship)
         {

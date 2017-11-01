@@ -14,7 +14,7 @@ namespace BotMarfu
             var round = 0;
             try
             {
-                var botName = args.Length > 0 ? args[0] : "Marfu_v12";
+                var botName = args.Length > 0 ? args[0] : "Marfu_v13";
 
                 var networking = new Networking();
                 var gameMap = networking.Initialize(botName);

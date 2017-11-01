@@ -11,14 +11,17 @@ namespace BotMarfu.core.Missions
 
         private Ship _targetShip;
 
-        public KillerMission(int targetEnemyShipId, int targetEnemyShipOwnerId)
+        public KillerMission(int targetEnemyShipId, int targetEnemyShipOwnerId, bool important)
         {
             _targetEnemyShipId = targetEnemyShipId;
             _targetEnemyShipOwnerId = targetEnemyShipOwnerId;
+            Important = important;
         }
 
         public bool EnemySpotted { get; private set; }
         public Dictionary<int, Ship> EnemiesInRange { get; private set; }
+        public bool Important { get; private set; }
+        public int TargetEnemyShipId => _targetEnemyShipId;
 
         public bool CanExecute(GameMap map, Ship ship)
         {

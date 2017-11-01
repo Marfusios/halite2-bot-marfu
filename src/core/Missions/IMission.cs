@@ -10,5 +10,7 @@ namespace BotMarfu.core.Missions
 
         bool EnemySpotted { get; }
         Dictionary<int, Ship> EnemiesInRange { get; }
+
+        bool Important { get; }
     }
 }

@@ -13,6 +13,7 @@ namespace BotMarfu.core.Headquarter
         private readonly GameMap _map;
         private readonly General _general;
         private readonly Navigator _navigator;
+        private readonly ShipRegistrator _registrator;
 
         private readonly IDictionary<int, PlanetStrategy> _planetToStrategy = new Dictionary<int, PlanetStrategy>();
         private readonly IDictionary<int, EnemyShipStrategy> _enemyShipToStrategy = new Dictionary<int, EnemyShipStrategy>();
@@ -20,7 +21,7 @@ namespace BotMarfu.core.Headquarter
         private int _round;
         private readonly Dictionary<int, int> _initialShipToPlanet = new Dictionary<int, int>();
 
-        public Strategist(GameMap map, General general, Navigator navigator)
+        public Strategist(GameMap map, General general, Navigator navigator, ShipRegistrator registrator)
         {
             Validations.ValidateInput(map, nameof(GameMap));
             Validations.ValidateInput(general, nameof(General));
@@ -28,9 +29,38 @@ namespace BotMarfu.core.Headquarter
             _map = map;
             _general = general;
             _navigator = navigator;
+            _registrator = registrator;
 
             FillPlanets();
             InitializeInitShipToPlanet();
+        }
+
+        public void Update(int round)
+        {
+            _round = round;
+        }
+
+        public void HelpMe(Dictionary<int, Ship> enemies)
+        {
+            if (!enemies.Any())
+                return;
+            var firstEnemy = enemies.First().Value;
+            var ourClose = _navigator.FindNearestOurShips(firstEnemy, 6);
+
+            foreach (var ourShip in ourClose)
+            {
+                var reg = _registrator.Find(_map, ourShip.Key);
+                if(reg.Captain.CurrentMission.Important)
+                    continue;
+                var m = GenerateKillerMission(reg.Captain, enemies, true) as KillerMission;
+                if (m != null)
+                {
+                    RemoveShipFromStats(reg.Captain);
+                    var strategy = FindEnemyShip(m.TargetEnemyShipId);
+                    strategy.KillersForwardedToEnemy.Add(reg.Captain.ShipId);
+                    reg.Captain.AssignMission(m);
+                }
+            }
         }
 
         public IMission GenerateMissionForExistingShip(ShipCaptain shipCaptain)
@@ -49,7 +79,7 @@ namespace BotMarfu.core.Headquarter
             var nearestEnemyShips = GetNearestEnemyShips(shipCaptain);
             if (nearestEnemyShips.Any())
             {
-                var m = GenerateKillerMission(shipCaptain, nearestEnemyShips);
+                var m = GenerateKillerMission(shipCaptain, nearestEnemyShips, false);
                 if (m != MissionVoid.Null)
                     return m;
             }
@@ -159,7 +189,7 @@ namespace BotMarfu.core.Headquarter
         private IMission GenerateSettlerMissionForBootstrap(ShipCaptain captain)
         {
             var planetId = _initialShipToPlanet[captain.ShipId];
-            return new SettlerMission(planetId, _navigator);
+            return new SettlerMission(planetId, _navigator, this);
         }
 
         
@@ -178,7 +208,7 @@ namespace BotMarfu.core.Headquarter
             var planetId = targetPlanet.PlanetId;
             targetPlanet.ShipsForwardedToSettle.Add(captain.ShipId);
 
-            return new SettlerMission(planetId, _navigator);
+            return new SettlerMission(planetId, _navigator, this);
         }
 
         private IMission GenerateAttackerMission(ShipCaptain captain, Planet[] nearest, bool aggresive = false)
@@ -234,7 +264,7 @@ namespace BotMarfu.core.Headquarter
             return new DefenderMission(planetId, _general.DefenderMaxRounds);
         }
 
-        private IMission GenerateKillerMission(ShipCaptain captain, Dictionary<int, Ship> nearestEnemyShips)
+        private IMission GenerateKillerMission(ShipCaptain captain, Dictionary<int, Ship> nearestEnemyShips, bool important)
         {
             foreach (var enemy in nearestEnemyShips)
             {
@@ -243,7 +273,7 @@ namespace BotMarfu.core.Headquarter
                     continue;
 
                 strategy.KillersForwardedToEnemy.Add(captain.ShipId);
-                return new KillerMission(enemy.Key, enemy.Value.GetOwner());
+                return new KillerMission(enemy.Key, enemy.Value.GetOwner(), important);
             }
             return MissionVoid.Null;
         }
@@ -377,11 +407,6 @@ namespace BotMarfu.core.Headquarter
             var attack = _planetToStrategy.Sum(x => x.Value.ShipsForwardedToAttack.Count);
             var defend = _planetToStrategy.Sum(x => x.Value.ShipsForwardedToDefend.Count);
             DebugLog.AddLog(round, $"[STRATEG] AttackerMission: {attack}, SettlerMission: {settle}, DefenderMission: {defend}");
-        }
-
-        public void Update(int round)
-        {
-            _round = round;
         }
     }
 }

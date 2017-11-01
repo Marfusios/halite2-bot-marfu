@@ -9,21 +9,27 @@ namespace BotMarfu.core.Missions
     class SettlerMission : IMission
     {
         private readonly Navigator _navigator;
+        private readonly Strategist _strategist;
         private readonly int _targetPlanetId;
         private int _lastVoidMoves;
         private int _moves;
+        private Ship.DockingStatus _status = Ship.DockingStatus.Undocked;
 
-        public SettlerMission(int targetPlanetId, Navigator navigator)
+        public SettlerMission(int targetPlanetId, Navigator navigator, Strategist strategist)
         {
             _targetPlanetId = targetPlanetId;
             _navigator = navigator;
+            _strategist = strategist;
         }
 
         public bool EnemySpotted { get; private set; }
         public Dictionary<int, Ship> EnemiesInRange { get; private set; }
+        public bool Important => _status != Ship.DockingStatus.Undocked;
+        public Ship.DockingStatus Status => _status;
 
         public bool CanExecute(GameMap map, Ship ship)
         {
+            _status = ship.GetDockingStatus();
             _moves++;
 
             var planet = map.GetPlanet(_targetPlanetId);
@@ -35,13 +41,19 @@ namespace BotMarfu.core.Missions
                 return false;
             if (_lastVoidMoves > 2)
                 return false;
-            if (_moves < 5)
+
+            var enemies = _navigator.FindNearestEnemyShips(ship);
+            if (enemies.Any())
             {
-                EnemiesInRange = _navigator.FindNearestEnemyShips(ship);
-                if (EnemiesInRange.Any())
+                if (_status == Ship.DockingStatus.Undocked && _moves < 5)
                 {
+                    EnemiesInRange = enemies;
                     EnemySpotted = true;
                     return false;
+                }
+                if (_status != Ship.DockingStatus.Undocked)
+                {
+                    _strategist.HelpMe(enemies);
                 }
             }
             return true;

@@ -19,6 +19,7 @@ namespace BotMarfu.core.Missions
 
         public bool EnemySpotted { get; } = false;
         public Dictionary<int, Ship> EnemiesInRange { get; } = null;
+        public bool Important { get; } = false;
 
         public static readonly IMission Null = new MissionVoid();
     }

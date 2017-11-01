@@ -26,8 +26,8 @@ namespace BotMarfu.core.Headquarter
             _general = general;
             _map = map;
             _navigator = new Navigator(map, _general);
-            _strategist = new Strategist(_map, _general, _navigator);
             _shipRegistrator = new ShipRegistrator();
+            _strategist = new Strategist(_map, _general, _navigator, _shipRegistrator);
 
             _general.AdjustInitialStrategy(_map);
         }
@@ -41,10 +41,10 @@ namespace BotMarfu.core.Headquarter
             var player = _map.GetMyPlayer();
             var ships = player.GetShips();
 
-            if (round < 10 && ships.Count < 3)
-            {
-                DebugLog.AddLog(round, "[ERROR] too low ships " + ships.Count);
-            }
+            //if (round < 10 && ships.Count < 3)
+            //{
+            //    DebugLog.AddLog(round, "[ERROR] too low ships " + ships.Count);
+            //}
 
             _shipRegistrator.UpdateRegistration(ships);
 
@@ -114,7 +114,7 @@ namespace BotMarfu.core.Headquarter
                         collision = true;
                         break;
                     }
-                    if (distance < m.GetShip().GetRadius() + 4.51)
+                    if (distance < m.GetShip().GetRadius() + 6.51)
                     {
                         safeCollision = true;
                         collisionThrust = Math.Min(otherMove.GetThrust(), collisionThrust);
@@ -164,8 +164,12 @@ namespace BotMarfu.core.Headquarter
         private void LogState(int round)
         {
             var currentMissions = _shipRegistrator.GroupBy(x => x.Captain.CurrentMission.GetType()).Select(x => $"{x.Key.Name}: {x.Count()}");
+            //var settlers = _shipRegistrator.Where(x => x.Captain.CurrentMission is SettlerMission)
+            //    .Select(x => x.Captain.CurrentMission).Cast<SettlerMission>();
+            //var docking = settlers.Count(x => x.Status == Ship.DockingStatus.Docking);
             var log = string.Join(", ", currentMissions);
             DebugLog.AddLog(round, $"[COORDIN] {log}");
+            //DebugLog.AddLog(round, $"[!!! docking] {docking}");
         }
     }
 }
