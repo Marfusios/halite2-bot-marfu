@@ -10,5 +10,10 @@ namespace Halite2.hlt
             // Make sure return value is in [0, 360) as required by game engine.
             return (int)(((degUnclipped % 360L) + 360L) % 360L);
         }
+
+        public static double AngleDegToRadClipped(double angle)
+        {
+            return (Math.PI / 180) * angle;
+        }
     }
 }

@@ -22,6 +22,16 @@ namespace BotMarfu.core.Moves
                 new ThrustMove(GetShip(), GetAngle(), newThrust),
                 NavigationExtended.ComputeNewPosition(GetShip(), newThrust, AngleRadians),
                 AngleRadians
+            );
+        }
+
+        public ThrustMoveExtended Clone(int newThrust, int newAngle)
+        {
+            var newAngleRad = Util.AngleDegToRadClipped(newAngle);
+            return new ThrustMoveExtended(
+                new ThrustMove(GetShip(), newAngle, newThrust),
+                NavigationExtended.ComputeNewPosition(GetShip(), newThrust, newAngleRad),
+                newAngleRad
                 );
         }
     }

@@ -36,12 +36,17 @@ namespace BotMarfu.core.Headquarter
         {
             _general.AdjustGlobalStrategy(_map, round);
             _navigator.Update();
+            _strategist.Update(round);
 
             var player = _map.GetMyPlayer();
             var ships = player.GetShips();
-            var allShips = _map.GetAllShips();
 
-            _shipRegistrator.UpdateRegistration(allShips);
+            if (round < 10 && ships.Count < 3)
+            {
+                DebugLog.AddLog(round, "[ERROR] too low ships " + ships.Count);
+            }
+
+            _shipRegistrator.UpdateRegistration(ships);
 
             foreach (var currentShip in _shipRegistrator.ToArray())
             {
@@ -66,7 +71,7 @@ namespace BotMarfu.core.Headquarter
                         break;
                 }
                 var command = captain.ExecuteCommand(this);
-                var correctedCommand = CorrectCommand(command, commands);
+                var correctedCommand = CorrectCommand(command, commands, round);
                 commands.Add(correctedCommand);
             }
             // CorrectCommands(commands);
@@ -88,7 +93,7 @@ namespace BotMarfu.core.Headquarter
         }
 
 
-        private Move CorrectCommand(Move move, List<Move> futureMoves)
+        private Move CorrectCommand(Move move, List<Move> futureMoves, int round)
         {
             var extended = futureMoves
                 .Where(x => x is ThrustMoveExtended)
@@ -99,6 +104,8 @@ namespace BotMarfu.core.Headquarter
             if (m != null)
             {
                 var collision = false;
+                var safeCollision = false;
+                var collisionThrust = m.GetThrust();
                 foreach (var otherMove in extended)
                 {
                     var distance = m.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
@@ -107,8 +114,25 @@ namespace BotMarfu.core.Headquarter
                         collision = true;
                         break;
                     }
+                    if (distance < m.GetShip().GetRadius() + 4.51)
+                    {
+                        safeCollision = true;
+                        collisionThrust = Math.Min(otherMove.GetThrust(), collisionThrust);
+                        break;
+                    }
+                    if (round < 3)
+                    {
+                        distance = m.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
+                        if (distance < m.GetShip().GetRadius() + 7)
+                        {
+                            collision = true;
+                            break;
+                        }
+                    }
                 }
-                return collision ? m.Clone(Math.Max(m.GetThrust() - 2, 0)) : m;
+                //var newAngle = m.GetAngle() - 10;
+                return collision ? NullMove.Null :
+                    safeCollision ? m.Clone(Math.Max(collisionThrust-4, 0)) : m;
             }
             return move;
         }

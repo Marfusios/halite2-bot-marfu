@@ -25,12 +25,15 @@ namespace BotMarfu.core.Headquarter
             _general = general;
             var width = map.GetWidth();
             var height = map.GetHeight();
+            MapCenter = new Position(width/2.0, height/2.0);
 
 
             _horizontalTiles = width / _tileSize;
             _verticalTiles = height / _tileSize;
             _shipsPerTile = new Dictionary<int,Ship>[_horizontalTiles, _verticalTiles];
         }
+
+        public Position MapCenter { get; }
 
         public void Update()
         {
@@ -78,6 +81,7 @@ namespace BotMarfu.core.Headquarter
 
             return result
                 .OrderBy(x => x.Value.Distance)
+                .ThenByDescending(x => (int)x.Value.Ship.GetDockingStatus())
                 .ToDictionary(x => x.Key, y => y.Value.Ship);
         }
 

@@ -26,9 +26,9 @@ namespace BotMarfu.core.Headquarter
 
             if (_twoPlayers)
             {
-                InitialSettlersCount = 4;
+                InitialSettlersCount = 5;
                 NearestPlanetCount = 2;
-                SettlerRatio = 0.8;
+                SettlerRatio = 0.9;
                 AttackerRatio = 1;
                 DefenderRatio = 1;
 
