@@ -17,7 +17,7 @@ namespace BotMarfu.core.Headquarter
         public int NearestPlanetCount { get; private set; } = 2;
         public double NearestPlanetMaxDistanceRatio { get; private set; } = 1.5;
         public int EnemyCheckRadius { get; private set; } = 2;
-        public int EnemyCheckRadiusForNew { get; private set; } = 3;
+        public int EnemyCheckRadiusForNew { get; private set; } = 4;
         public int KillersPerEnemyShip { get; private set; } = 2;
 
         public void AdjustInitialStrategy(GameMap map)

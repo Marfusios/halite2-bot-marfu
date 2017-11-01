@@ -53,7 +53,7 @@ namespace BotMarfu.core.Headquarter
 
         public Dictionary<int, Ship> FindNearestShips(Position position, int radius)
         {
-            var result = new Dictionary<int, Ship>();
+            var result = new Dictionary<int, ShipTilePosition>();
             var breath = radius;
 
             var horizontal = (int)Math.Abs(position.GetXPos()-1) / _tileSize;
@@ -62,20 +62,23 @@ namespace BotMarfu.core.Headquarter
             var startHor = horizontal - breath;
             var startVer = vertical - breath;
 
-            for (int i = startHor; i <= startHor + breath; i++)
+            for (int i = startVer; i <= startVer + breath; i++)
             {
-                if (UnCorrectHorizontalTile(i))
+                if (UnCorrectVerticalTile(i))
                     continue;
-                for (int j = startVer; j <= startVer + breath; j++)
+                for (int j = startHor; j <= startHor + breath; j++)
                 {
-                    if(UnCorrectVerticalTile(j))
+                    if(UnCorrectHorizontalTile(j))
                         continue;
-                    var tile = _shipsPerTile[i, j];
-                    CopyShips(tile, result);
+                    var tile = _shipsPerTile[j, i];
+                    var distance = Math.Abs(j - horizontal) + Math.Abs(i - vertical);
+                    CopyShips(tile, result, distance);
                 }
             }
 
-            return result;
+            return result
+                .OrderBy(x => x.Value.Distance)
+                .ToDictionary(x => x.Key, y => y.Value.Ship);
         }
 
         private bool UnCorrectVerticalTile(int j)
@@ -101,12 +104,12 @@ namespace BotMarfu.core.Headquarter
             return FindNearestEnemyShips(position, _general.EnemyCheckRadius);
         }
 
-        private void CopyShips(Dictionary<int, Ship> from, Dictionary<int, Ship> to)
+        private void CopyShips(Dictionary<int, Ship> from, Dictionary<int, ShipTilePosition> to, int distance)
         {
             foreach (var ship in from)
             {
                 if(!to.ContainsKey(ship.Key))
-                    to.Add(ship.Key, ship.Value);
+                    to.Add(ship.Key, new ShipTilePosition(ship.Value, distance));
             }
         }
 
@@ -120,6 +123,18 @@ namespace BotMarfu.core.Headquarter
                 }
             }
             
+        }
+
+        public class ShipTilePosition
+        {
+            public ShipTilePosition(Ship ship, int distance)
+            {
+                Ship = ship;
+                Distance = distance;
+            }
+
+            public Ship Ship { get; }
+            public int Distance { get; }
         }
     }
 }

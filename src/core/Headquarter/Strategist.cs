@@ -116,7 +116,7 @@ namespace BotMarfu.core.Headquarter
         {
             var planets = nearest
                 .Select(x => _planetToStrategy[x.GetId()])
-                .Where(x => x.CanSettle)
+                .Where(x => x.CanSettle(isNewShip))
                 .Take(isNewShip ? 1 : _general.NearestPlanetCount)
                 .ToArray();
 
@@ -127,7 +127,7 @@ namespace BotMarfu.core.Headquarter
             var planetId = targetPlanet.PlanetId;
             targetPlanet.ShipsForwardedToSettle.Add(captain.ShipId);
 
-            return new SettlerMission(planetId);
+            return new SettlerMission(planetId, _navigator);
         }
 
         private IMission GenerateAttackerMission(ShipCaptain captain, Planet[] nearest, bool aggresive = false)
@@ -279,9 +279,9 @@ namespace BotMarfu.core.Headquarter
             public HashSet<int> ShipsForwardedToAttack { get; } = new HashSet<int>();
             public HashSet<int> ShipsForwardedToDefend { get; } = new HashSet<int>();
 
-            public bool CanSettle => IsOurOrFree && 
+            public bool CanSettle(bool isNew) => IsOurOrFree && 
                                      !Planet.IsFull() &&
-                                     ShipsForwardedToSettle.Count < Planet.GetDockingSpots();
+                                     ShipsForwardedToSettle.Count < (Planet.GetDockingSpots() + (isNew ? 1 : 0));
 
             public bool CanAttack => IsForeign &&
                                      ShipsForwardedToAttack.Count < 2 * Planet.GetDockingSpots();

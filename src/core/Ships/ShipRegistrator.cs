@@ -9,12 +9,13 @@ namespace BotMarfu.core.Ships
     {
         private readonly Dictionary<int, ShipRegistration> _ships = new Dictionary<int, ShipRegistration>();
 
-        public void UpdateRegistration(IDictionary<int, Ship> currentShips)
+        public void UpdateRegistration(IList<Ship> currentShips)
         {
+            var lookup = currentShips.ToDictionary(x => x.GetId(), null);
             foreach (var ship in _ships.Values.ToArray())
             {
                 var id = ship.Captain.ShipId;
-                if (currentShips.ContainsKey(id))
+                if (lookup.ContainsKey(id))
                 {
                     _ships[id] = ship.Clone(ShipState.Normal);
                 }

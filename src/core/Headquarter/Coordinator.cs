@@ -39,8 +39,15 @@ namespace BotMarfu.core.Headquarter
 
             var player = _map.GetMyPlayer();
             var ships = player.GetShips();
+            var allShips = _map.GetAllShips();
 
-            _shipRegistrator.UpdateRegistration(ships);
+            _shipRegistrator.UpdateRegistration(allShips);
+
+            foreach (var currentShip in _shipRegistrator.ToArray())
+            {
+                if(currentShip.State == ShipRegistrator.ShipState.Destroyed)
+                    HandleDestroyedShip(currentShip.Captain);
+            }
 
             var commands = new List<Move>();
             foreach (var ship in ships)
@@ -55,8 +62,7 @@ namespace BotMarfu.core.Headquarter
                         captain.AssignMission(_strategist.GenerateMissionForNewShip(captain, _createdShips));
                         break;
                     case ShipRegistrator.ShipState.Destroyed:
-                        captain.AssignMission(MissionVoid.Null);
-                        HandleDestroyedShip(captain);
+                        captain.AssignMission(MissionVoid.Null);                        
                         break;
                 }
                 var command = captain.ExecuteCommand(this);
