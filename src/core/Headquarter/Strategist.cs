@@ -197,7 +197,7 @@ namespace BotMarfu.core.Headquarter
         {
             var planets = nearest
                 .Select(x => _planetToStrategy[x.GetId()])
-                .Where(x => x.CanSettle(isNewShip, isInitialSettler))
+                .Where(x => x.CanSettle(isNewShip, _round))
                 .Take(isNewShip ? 1 : _general.NearestPlanetCount)
                 .ToArray();
 
@@ -371,7 +371,7 @@ namespace BotMarfu.core.Headquarter
             public HashSet<int> ShipsForwardedToAttack { get; } = new HashSet<int>();
             public HashSet<int> ShipsForwardedToDefend { get; } = new HashSet<int>();
 
-            public bool CanSettle(bool isNew, bool isInitial) => IsOurOrFree && 
+            public bool CanSettle(bool isNew, int round) => IsOurOrFree && 
                                      !Planet.IsFull() &&
                                      ShipsForwardedToSettle.Count < 
                                         Planet.GetDockingSpots() + (isNew ? 1 : 0); // settle to n-1 if not new ship

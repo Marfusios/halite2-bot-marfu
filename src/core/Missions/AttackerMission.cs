@@ -13,6 +13,7 @@ namespace BotMarfu.core.Missions
 
         private int _lastAttackedShipId = -1;
         private int _lastVoidMoves;
+        private int _moves;
 
         public AttackerMission(int targetPlanetId, Navigator navigator)
         {
@@ -26,6 +27,8 @@ namespace BotMarfu.core.Missions
 
         public bool CanExecute(GameMap map, Ship ship)
         {
+            _moves++;
+
             var planet = map.GetPlanet(_targetPlanetId);
             if (planet == null)
                 return false;
@@ -35,11 +38,14 @@ namespace BotMarfu.core.Missions
                 return false;
             if (_lastVoidMoves > 5)
                 return false;
-            EnemiesInRange = _navigator.FindNearestEnemyShips(ship);
-            if (EnemiesInRange.Any())
+            if (_moves < 5)
             {
-                EnemySpotted = true;
-                return false;
+                EnemiesInRange = _navigator.FindNearestEnemyShips(ship);
+                if (EnemiesInRange.Any())
+                {
+                    EnemySpotted = true;
+                    return false;
+                }
             }
             return true;
         }

@@ -39,7 +39,7 @@ namespace BotMarfu.core.Missions
                 return false;
             if (!planet.IsOwned() && planet.GetOwner() != -1)
                 return false;
-            if (_lastVoidMoves > 2)
+            if (_status == Ship.DockingStatus.Undocked && _lastVoidMoves > 2)
                 return false;
 
             var enemies = _navigator.FindNearestEnemyShips(ship);
@@ -69,8 +69,7 @@ namespace BotMarfu.core.Missions
                 return NullMove.Null;
             }
 
-            var currentStatus = ship.GetDockingStatus();
-            if (currentStatus != Ship.DockingStatus.Undocked)
+            if (_status == Ship.DockingStatus.Docked)
                 return NullMove.Null;
 
             move = MoveOrDock(map, planet, ship);

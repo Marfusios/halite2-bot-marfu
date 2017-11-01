@@ -114,7 +114,7 @@ namespace BotMarfu.core.Headquarter
                         collision = true;
                         break;
                     }
-                    if (distance < m.GetShip().GetRadius() + 6.51)
+                    if (distance < m.GetShip().GetRadius() + 4.51)
                     {
                         safeCollision = true;
                         collisionThrust = Math.Min(otherMove.GetThrust(), collisionThrust);
@@ -132,7 +132,7 @@ namespace BotMarfu.core.Headquarter
                 }
                 //var newAngle = m.GetAngle() - 10;
                 return collision ? NullMove.Null :
-                    safeCollision ? m.Clone(Math.Max(collisionThrust-4, 0)) : m;
+                    safeCollision ? m.Clone(Math.Max(collisionThrust-2, 0)) : m;
             }
             return move;
         }
