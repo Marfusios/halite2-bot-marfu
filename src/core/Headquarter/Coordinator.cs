@@ -71,6 +71,8 @@ namespace BotMarfu.core.Headquarter
                         break;
                 }
                 var command = captain.ExecuteCommand(this);
+                if(command == null)
+                    continue;
                 var correctedCommand = CorrectCommand(command, commands, round);
                 commands.Add(correctedCommand);
             }
@@ -114,7 +116,7 @@ namespace BotMarfu.core.Headquarter
                         collision = true;
                         break;
                     }
-                    if (distance < m.GetShip().GetRadius() + 4.51)
+                    if (distance < m.GetShip().GetRadius() + 1.51)
                     {
                         safeCollision = true;
                         collisionThrust = Math.Min(otherMove.GetThrust(), collisionThrust);
@@ -132,7 +134,7 @@ namespace BotMarfu.core.Headquarter
                 }
                 //var newAngle = m.GetAngle() - 10;
                 return collision ? NullMove.Null :
-                    safeCollision ? m.Clone(Math.Max(collisionThrust-2, 0)) : m;
+                    safeCollision ? m.Clone(Math.Max(collisionThrust-1, 0)) : m;
             }
             return move;
         }

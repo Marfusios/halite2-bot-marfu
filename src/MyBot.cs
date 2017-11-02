@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using BotMarfu.core.Headquarter;
 using Halite2.hlt;
 
@@ -14,7 +13,7 @@ namespace BotMarfu
             var round = 0;
             try
             {
-                var botName = args.Length > 0 ? args[0] : "Marfu_v14";
+                var botName = args.Length > 0 ? args[0] : "Marfu_v15";
 
                 var networking = new Networking();
                 var gameMap = networking.Initialize(botName);

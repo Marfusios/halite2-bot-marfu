@@ -76,7 +76,7 @@ namespace Halite2.hlt {
                                                ICollection<Entity> entitiesToCheck) {
 
             foreach (Entity entity in entitiesToCheck) {
-                if (entity.Equals(start) || entity.Equals(target)) {
+                if (entity.Equals(start)) {
                     continue;
                 }
                 if (Collision.segmentCircleIntersect(start, target, entity, Constants.FORECAST_FUDGE_FACTOR)) {

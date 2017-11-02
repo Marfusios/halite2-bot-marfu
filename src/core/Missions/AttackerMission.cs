@@ -11,6 +11,7 @@ namespace BotMarfu.core.Missions
         private readonly Navigator _navigator;
         private readonly int _targetPlanetId;
 
+        private int _lastAttackedShipOwner = -1;
         private int _lastAttackedShipId = -1;
         private int _lastVoidMoves;
         private int _moves;
@@ -36,7 +37,7 @@ namespace BotMarfu.core.Missions
                 return false;
             if (!planet.GetDockedShips().Any())
                 return false;
-            if (_lastVoidMoves > 5)
+            if (_lastVoidMoves > 3)
                 return false;
             if (_moves < 5)
             {
@@ -53,18 +54,43 @@ namespace BotMarfu.core.Missions
         public Move Execute(GameMap map, Ship ship)
         {
             var planet = map.GetPlanet(_targetPlanetId);
-            var target = map.GetShip(planet.GetOwner(), _lastAttackedShipId);
+            Ship target = null;
+
+            if (_lastAttackedShipOwner >= 0 && _lastAttackedShipId >= 0)
+            {
+                target = map.GetShip(_lastAttackedShipOwner, _lastAttackedShipId);
+            }
+            else if (planet.GetOwner() < 0)
+            {
+                var enemies = _navigator.FindNearestEnemyShips(planet, 4).Where(x => x.Value.GetDockingProgress() > 0).ToArray();
+                if (!enemies.Any())
+                {
+                    UpdateLastVoidMoves(NullMove.Null);
+                    return NullMove.Null;
+                }
+
+                target = enemies.First().Value;
+                _lastAttackedShipOwner = target.GetOwner();
+                _lastAttackedShipId = target.GetId();
+            }
+            else
+            {
+                _lastAttackedShipOwner = planet.GetOwner();
+                target = map.GetShip(_lastAttackedShipOwner, _lastAttackedShipId);
+            }
 
             if (target == null)
             {
                 _lastVoidMoves = 0;
                 var docked = planet.GetDockedShips();
+                if (docked.Count <= 0)
+                {
+                    UpdateLastVoidMoves(NullMove.Null);
+                    return NullMove.Null;
+                }
                 _lastAttackedShipId = docked[ship.GetId() % docked.Count];
                 target = map.GetShip(planet.GetOwner(), _lastAttackedShipId);
             }
-
-            if (_lastVoidMoves > 2)
-                return NullMove.Null;
 
             var move = Move(map, target, ship);
             UpdateLastVoidMoves(move);

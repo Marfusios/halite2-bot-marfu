@@ -146,6 +146,10 @@ def _parse_arguments():
                             help="The path wherein your bot zip lives.")
     # .Modes.Gym
     bot_parser = subparser.add_parser('gym', help='Train your Bot(s)!')
+    bot_parser.add_argument('-id', '--identification', dest='id', action='store', type=str, required=False,
+                            help="The identification for group of related gym tests")
+    bot_parser.add_argument('-desc', '--description', dest='desc', action='store', type=str, required=False,
+                            help="The description of gym test")
     bot_parser.add_argument('-r', '--run-command', dest='run_commands', action='append', type=str, required=True,
                             help="The command to run a specific bot. You may pass either 2 or 4 of these arguments")
     bot_parser.add_argument('-b', '--binary', dest='halite_binary', action='store', type=str, required=True,
@@ -194,7 +198,9 @@ def main():
     try:
         args = _parse_arguments()
         if args.mode == GYM_MODE:
-            compare_bots.play_games(args.halite_binary,
+            compare_bots.play_games(args.id,
+                                    args.desc,
+                                    args.halite_binary,
                                     args.map_width, args.map_height,
                                     args.run_commands, args.iterations)
     except (IndexError, TypeError, ValueError, IOError, FileNotFoundError) as err:

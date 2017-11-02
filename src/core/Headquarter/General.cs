@@ -15,9 +15,9 @@ namespace BotMarfu.core.Headquarter
         public int InitialSettlersCount { get; private set; } = 3;
         public int DefenderMaxRounds { get; } = 10;
         public int NearestPlanetCount { get; private set; } = 2;
-        public double NearestPlanetMaxDistanceRatio { get; private set; } = 1.5;
-        public int EnemyCheckRadius { get; private set; } = 2;
-        public int EnemyCheckRadiusForNew { get; private set; } = 4;
+        public double NearestPlanetMaxDistanceRatio { get; private set; } = 1.8;
+        public int EnemyCheckRadius { get; private set; } = 3;
+        public int EnemyCheckRadiusForNew { get; private set; } = 5;
         public int KillersPerEnemyShip { get; private set; } = 2;
 
         public void AdjustInitialStrategy(GameMap map)
@@ -26,24 +26,20 @@ namespace BotMarfu.core.Headquarter
 
             if (_twoPlayers)
             {
-                InitialSettlersCount = 5;
+                InitialSettlersCount = 3;
                 NearestPlanetCount = 2;
-                SettlerRatio = 0.8;
+                SettlerRatio = 0.6;
                 AttackerRatio = 1;
                 DefenderRatio = 1;
 
                 return;
             }
 
-            InitialSettlersCount = 5;
+            InitialSettlersCount = 10;
             NearestPlanetCount = 2;
-            SettlerRatio = 0.95;
+            SettlerRatio = 0.9;
             AttackerRatio = 1;
             DefenderRatio = 1;
-
-            EnemyCheckRadius = 2;
-            EnemyCheckRadiusForNew = 4;
-            KillersPerEnemyShip = 2;
         }
 
         public void AdjustGlobalStrategy(GameMap map, int round)
@@ -104,13 +100,13 @@ namespace BotMarfu.core.Headquarter
             if (first.Key == map.GetMyPlayerId())
             {
                 //DebugLog.AddLog(round, $"[GENERAL] 4 - adjusting strategy for winning. Me: {me}, Second: {second.Value}");
-                SettlerRatio = 0.7;
+                SettlerRatio = 0.6;
                 AttackerRatio = 1;
             }
             else
             {
                 //DebugLog.AddLog(round, $"[GENERAL] 4 - adjusting strategy for loosing. First: {first.Value}, Me: {me}");
-                SettlerRatio = 0.9;
+                SettlerRatio = 0.8;
                 AttackerRatio = 1;
             }
         }

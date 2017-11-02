@@ -31,7 +31,7 @@ def _play_game(binary, map_width, map_height, bot_commands):
     return subprocess.check_output(game_run_command, shell=True).decode()
 
 
-def play_games(binary, map_width, map_height, bot_commands, number_of_runs):
+def play_games(id, desc, binary, map_width, map_height, bot_commands, number_of_runs):
     """
     Runs number_of_runs games using the designated bots and binary, recording the tally of wins per player
     :param binary: The Halite binary.
@@ -49,5 +49,7 @@ def play_games(binary, map_width, map_height, bot_commands, number_of_runs):
         match_output = _play_game(binary, map_width, map_height, bot_commands)
         winner = _determine_winner(match_output)
         result[winner] = result.setdefault(winner, 0) + 1
-        print("Finished {} runs.".format(current_run + 1))
-        print("Win Ratio: {}".format(result))
+        print("{}: Win Ratio: {}".format(current_run + 1, result))
+    ratio = "win ratio: {}".format(result)
+    file = open(id + "_results.txt", "a")
+    file.write(desc + "\t\t\t\t\t\t-\t" + ratio + "\n")

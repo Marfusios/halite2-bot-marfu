@@ -337,7 +337,7 @@ namespace BotMarfu.core.Headquarter
         {
             foreach (var planet in _map.GetAllPlanets())
             {
-                _planetToStrategy[planet.Key] = new PlanetStrategy(planet.Key, _map);
+                _planetToStrategy[planet.Key] = new PlanetStrategy(planet.Key, _map, _navigator);
             }
         }
 
@@ -351,12 +351,14 @@ namespace BotMarfu.core.Headquarter
         private class PlanetStrategy
         {
             private readonly GameMap _map;
+            private readonly Navigator _navigator;
             private readonly int _playerId;
 
-            public PlanetStrategy(int planetId, GameMap map)
+            public PlanetStrategy(int planetId, GameMap map, Navigator navigator)
             {
                 PlanetId = planetId;
                 _map = map;
+                _navigator = navigator;
                 _playerId = map.GetMyPlayerId();
             }
 
@@ -367,16 +369,20 @@ namespace BotMarfu.core.Headquarter
             public bool IsOurOrFree => IsOur || IsFree;
             public bool IsForeign => !IsOurOrFree;
 
+            public bool SomethingIsDocking => _navigator.FindNearestEnemyShips(Planet, 2).Any(x => x.Value.GetDockingProgress() > 0);
+
             public HashSet<int> ShipsForwardedToSettle { get; } = new HashSet<int>();
             public HashSet<int> ShipsForwardedToAttack { get; } = new HashSet<int>();
             public HashSet<int> ShipsForwardedToDefend { get; } = new HashSet<int>();
 
-            public bool CanSettle(bool isNew, int round) => IsOurOrFree && 
-                                     !Planet.IsFull() &&
-                                     ShipsForwardedToSettle.Count < 
-                                        Planet.GetDockingSpots() + (isNew ? 1 : 0); // settle to n-1 if not new ship
-
-            public bool CanAttack => IsForeign &&
+            public bool CanSettle(bool isNew, int round) => IsOurOrFree &&
+                                                            !Planet.IsFull() &&
+                                                            ShipsForwardedToSettle.Count <
+                                                                Planet.GetDockingSpots() +
+                                                                (isNew ? 1 : 0) && // settle to n-1 if not new ship
+                                                            !SomethingIsDocking;
+            
+            public bool CanAttack => (IsForeign || SomethingIsDocking) &&
                                      ShipsForwardedToAttack.Count < 2 * Planet.GetDockingSpots();
 
             public bool CanDefend => IsOur &&
