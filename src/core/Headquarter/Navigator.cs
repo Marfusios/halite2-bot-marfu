@@ -35,7 +35,7 @@ namespace BotMarfu.core.Headquarter
 
         public Position MapCenter { get; }
 
-        public void Update()
+        public void Update(int round)
         {
             InitTiles();
 
@@ -50,7 +50,9 @@ namespace BotMarfu.core.Headquarter
 
                 var tile = _shipsPerTile[horizontal, vertical];
                 if (!tile.ContainsKey(ship.GetId()))
+                {
                     tile.Add(ship.GetId(), ship);
+                }
             }
         }
 
@@ -65,11 +67,11 @@ namespace BotMarfu.core.Headquarter
             var startHor = horizontal - breath;
             var startVer = vertical - breath;
 
-            for (int i = startVer; i <= startVer + breath; i++)
+            for (int i = startVer; i <= vertical + breath; i++)
             {
                 if (UnCorrectVerticalTile(i))
                     continue;
-                for (int j = startHor; j <= startHor + breath; j++)
+                for (int j = startHor; j <= horizontal + breath; j++)
                 {
                     if(UnCorrectHorizontalTile(j))
                         continue;

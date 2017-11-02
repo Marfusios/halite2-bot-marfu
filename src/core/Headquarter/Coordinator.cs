@@ -35,7 +35,7 @@ namespace BotMarfu.core.Headquarter
         public Move[] DoCommands(int round)
         {
             _general.AdjustGlobalStrategy(_map, round);
-            _navigator.Update();
+            _navigator.Update(round);
             _strategist.Update(round);
 
             var player = _map.GetMyPlayer();
@@ -71,7 +71,7 @@ namespace BotMarfu.core.Headquarter
                         break;
                 }
                 var command = captain.ExecuteCommand(this);
-                if(command == null)
+                if(command == null || command == NullMove.Null)
                     continue;
                 var correctedCommand = CorrectCommand(command, commands, round);
                 commands.Add(correctedCommand);

@@ -1,5 +1,6 @@
 ﻿using BotMarfu.core.Headquarter;
 using BotMarfu.core.Missions;
+using BotMarfu.core.Moves;
 using Halite2.hlt;
 
 namespace BotMarfu.core.Ships
@@ -28,6 +29,9 @@ namespace BotMarfu.core.Ships
         public Move ExecuteCommand(Coordinator coordinator)
         {
             var ship = Ship;
+            if(ship == null)
+                return NullMove.Null;
+
             if (!_currentMission.CanExecute(_map, ship))
                 _currentMission = coordinator.GiveMeNewMission(this);
             return _currentMission.Execute(_map, ship);

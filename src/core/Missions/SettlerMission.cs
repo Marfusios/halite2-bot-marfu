@@ -45,7 +45,7 @@ namespace BotMarfu.core.Missions
             var enemies = _navigator.FindNearestEnemyShips(ship, 4);
             if (enemies.Any())
             {
-                if (_status == Ship.DockingStatus.Undocked && _moves < 5)
+                if (_status == Ship.DockingStatus.Undocked && _moves < 3)
                 {
                     EnemiesInRange = enemies;
                     EnemySpotted = true;
@@ -53,9 +53,10 @@ namespace BotMarfu.core.Missions
                 }
                 if (_status == Ship.DockingStatus.Undocked)
                 {
-                    if (enemies.Any(x => x.Value.GetDockingProgress() > 0))
+                    var dockingEnemies = enemies.Where(x => x.Value.GetDockingProgress() > 0).ToArray();
+                    if (dockingEnemies.Any())
                     {
-                        EnemiesInRange = enemies;
+                        EnemiesInRange = dockingEnemies.ToDictionary(x => x.Key, y => y.Value);
                         EnemySpotted = true;
                         return false;
                     }

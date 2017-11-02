@@ -10,16 +10,18 @@ namespace BotMarfu.core.Missions
     {
         private readonly Navigator _navigator;
         private readonly int _targetPlanetId;
+        private readonly bool _mustCompleteMission;
 
         private int _lastAttackedShipOwner = -1;
         private int _lastAttackedShipId = -1;
         private int _lastVoidMoves;
         private int _moves;
 
-        public AttackerMission(int targetPlanetId, Navigator navigator)
+        public AttackerMission(int targetPlanetId, Navigator navigator, bool mustCompleteMission = false)
         {
             _targetPlanetId = targetPlanetId;
             _navigator = navigator;
+            _mustCompleteMission = mustCompleteMission;
         }
 
         public bool EnemySpotted { get; private set; }
@@ -39,7 +41,7 @@ namespace BotMarfu.core.Missions
                 return false;
             if (_lastVoidMoves > 3)
                 return false;
-            if (_moves < 5)
+            if (!_mustCompleteMission && _moves < 3)
             {
                 EnemiesInRange = _navigator.FindNearestEnemyShips(ship);
                 if (EnemiesInRange.Any())
