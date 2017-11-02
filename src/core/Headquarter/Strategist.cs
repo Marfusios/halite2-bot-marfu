@@ -20,6 +20,7 @@ namespace BotMarfu.core.Headquarter
 
         private int _round;
         private readonly Dictionary<int, int> _initialShipToPlanet = new Dictionary<int, int>();
+        private int _initialShipId;
 
         public Strategist(GameMap map, General general, Navigator navigator, ShipRegistrator registrator)
         {
@@ -84,10 +85,22 @@ namespace BotMarfu.core.Headquarter
                     return m;
             }
 
-            //if (createdShips <= 3)
-            //{
-            //    return GenerateSettlerMissionForBootstrap(shipCaptain);
-            //}
+            var shipId = shipCaptain.ShipId;
+            if (createdShips <= 1)
+            {
+                _initialShipId = shipId;
+            }
+            if (shipId == _initialShipId)
+            {
+                if(_round < 2)
+                    return MissionVoid.Null;
+                if (_round == 2)
+                {
+                    var m = GenerateKillerMissionForBootstrap(shipCaptain);
+                    if (m != MissionVoid.Null)
+                        return m;
+                }
+            }
 
             var nearest = FindNearestPlanets(shipCaptain);
             if (createdShips <= _general.InitialSettlersCount)
@@ -113,6 +126,20 @@ namespace BotMarfu.core.Headquarter
 
             // Default
             return GenerateAttackerMission(shipCaptain, nearest, true);
+        }
+
+        private IMission GenerateKillerMissionForBootstrap(ShipCaptain captain)
+        {
+            var enemy = _map.GetAllShips()
+                .Where(x => x.GetOwner() != _map.GetMyPlayerId())
+                .Select(x => new {dist = captain.Ship.GetDistanceTo(x), enemy = x})
+                .Where(x => x.dist < _general.BootstrapKillerMisionMaxRange)
+                .OrderBy(x => x.dist)
+                .Select(x => x.enemy)
+                .FirstOrDefault();
+            if(enemy == null)
+                return MissionVoid.Null;
+            return new KillerMission(enemy.GetId(), enemy.GetOwner(), false);
         }
 
         private void InitializeInitShipToPlanet()

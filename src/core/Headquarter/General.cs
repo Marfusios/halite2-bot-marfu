@@ -20,26 +20,32 @@ namespace BotMarfu.core.Headquarter
         public int EnemyCheckRadiusForNew { get; private set; } = 5;
         public int KillersPerEnemyShip { get; private set; } = 2;
 
+        public int BootstrapKillerMisionMaxRange { get; private set; }
+
         public void AdjustInitialStrategy(GameMap map)
         {
             _twoPlayers = map.GetAllPlayers().Count <= 2;
 
             if (_twoPlayers)
             {
-                InitialSettlersCount = 3;
+                InitialSettlersCount = 10;
                 NearestPlanetCount = 2;
                 SettlerRatio = 0.6;
                 AttackerRatio = 1;
                 DefenderRatio = 1;
 
+                BootstrapKillerMisionMaxRange = 12 * Constants.MAX_SPEED;
+
                 return;
             }
 
-            InitialSettlersCount = 10;
+            InitialSettlersCount = 14;
             NearestPlanetCount = 2;
             SettlerRatio = 0.9;
             AttackerRatio = 1;
             DefenderRatio = 1;
+
+            BootstrapKillerMisionMaxRange = 12 * Constants.MAX_SPEED;
         }
 
         public void AdjustGlobalStrategy(GameMap map, int round)
