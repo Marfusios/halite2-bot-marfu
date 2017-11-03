@@ -76,7 +76,6 @@ namespace BotMarfu.core.Headquarter
                 var correctedCommand = CorrectCommand(command, commands, round);
                 commands.Add(correctedCommand);
             }
-            // CorrectCommands(commands);
 
             //LogState(round);
             //_strategist.LogState(round);
@@ -110,58 +109,41 @@ namespace BotMarfu.core.Headquarter
                 var collisionThrust = m.GetThrust();
                 foreach (var otherMove in extended)
                 {
+                    if (Collision.TwoLineSegmentIntersect(m.GetShip(), m.FuturePosition, otherMove.GetShip(),
+                        otherMove.FuturePosition))
+                    {
+                        //DebugLog.AddLog($"Two line intersection ship1: {m.GetShip().GetId()} ship2: {otherMove.GetShip().GetId()}");
+                        collision = true;
+                        break;
+                    }
                     var distance = m.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
                     if (distance < m.GetShip().GetRadius() + 0.51)
                     {
                         collision = true;
                         break;
                     }
-                    if (distance < m.GetShip().GetRadius() + 1.51)
-                    {
-                        safeCollision = true;
-                        collisionThrust = Math.Min(otherMove.GetThrust(), collisionThrust);
-                        break;
-                    }
-                    if (round < 3)
-                    {
-                        distance = m.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
-                        if (distance < m.GetShip().GetRadius() + 7)
-                        {
-                            collision = true;
-                            break;
-                        }
-                    }
+                    //if (distance < m.GetShip().GetRadius() + 1.51)
+                    //{
+                    //    safeCollision = true;
+                    //    collisionThrust = Math.Min(otherMove.GetThrust(), collisionThrust);
+                    //    break;
+                    //}
+                    //if (round < 10)
+                    //{
+                        //distance = m.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
+                        //if (distance < m.GetShip().GetRadius() + 7)
+                        //{
+                        //    collision = true;
+                        //    break;
+                        //}
+                        
+                    //}
                 }
-                //var newAngle = m.GetAngle() - 10;
                 return collision ? NullMove.Null :
                     safeCollision ? m.Clone(Math.Max(collisionThrust-1, 0)) : m;
             }
             return move;
         }
-
-        //private void CorrectCommands(List<Move> futureMoves)
-        //{
-        //    var extended = futureMoves
-        //        .Where(x => x is ThrustMoveExtended)
-        //        .Cast<ThrustMoveExtended>()
-        //        .ToArray();
-
-        //    foreach (var move in extended)
-        //    {
-        //        foreach (var otherMove in extended)
-        //        {
-        //            if(otherMove == move)
-        //                continue;
-
-        //            var distance = move.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
-        //            if (distance < move.GetShip().GetRadius() + 0.51)
-        //            {
-        //                futureMoves.Remove(move);
-        //                futureMoves.Add(move.Clone(Math.Max(move.GetThrust() - 2, 0)));
-        //            }
-        //        }
-        //    }
-        //}
 
         private void LogState(int round)
         {

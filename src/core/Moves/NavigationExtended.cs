@@ -12,7 +12,7 @@ namespace BotMarfu.core.Moves
                Entity dockTarget,
                int maxThrust)
         {
-            int maxCorrections = Constants.MAX_NAVIGATION_CORRECTIONS;
+            int maxCorrections = 100;
             bool avoidObstacles = true;
             double angularStepRad = Math.PI / 180.0;
             Position targetPos = ship.GetClosestPoint(dockTarget);
@@ -39,6 +39,12 @@ namespace BotMarfu.core.Moves
 
             if (avoidObstacles && gameMap.ObjectsBetween(ship, targetPos).Any())
             {
+                if (maxCorrections < 10)
+                {
+                    angularStepRad = 1;
+                    distance = maxThrust / 2.0;
+                }
+
                 double newTargetDx = Math.Cos(angleRad + angularStepRad) * distance;
                 double newTargetDy = Math.Sin(angleRad + angularStepRad) * distance;
                 Position newTarget = new Position(ship.GetXPos() + newTargetDx, ship.GetYPos() + newTargetDy);

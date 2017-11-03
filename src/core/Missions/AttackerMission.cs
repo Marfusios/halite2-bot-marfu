@@ -37,8 +37,6 @@ namespace BotMarfu.core.Missions
                 return false;
             if (planet.GetOwner() == map.GetMyPlayerId())
                 return false;
-            if (!planet.GetDockedShips().Any())
-                return false;
             if (_lastVoidMoves > 3)
                 return false;
             if (!_mustCompleteMission && _moves < 3)

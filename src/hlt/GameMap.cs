@@ -71,6 +71,15 @@ namespace Halite2.hlt {
             return entitiesFound;
         }
 
+        public List<Entity> ShipsBetween(Position start, Position target)
+        {
+            List<Entity> entitiesFound = new List<Entity>();
+
+            AddEntitiesBetween(entitiesFound, start, target, allShips.ToList<Entity>());
+
+            return entitiesFound;
+        }
+
         private static void AddEntitiesBetween(List<Entity> entitiesFound,
                                                Position start, Position target,
                                                ICollection<Entity> entitiesToCheck) {
@@ -79,7 +88,7 @@ namespace Halite2.hlt {
                 if (entity.Equals(start)) {
                     continue;
                 }
-                if (Collision.segmentCircleIntersect(start, target, entity, Constants.FORECAST_FUDGE_FACTOR)) {
+                if (Collision.SegmentCircleIntersect(start, target, entity, Constants.FORECAST_FUDGE_FACTOR)) {
                     entitiesFound.Add(entity);
                 }
             }

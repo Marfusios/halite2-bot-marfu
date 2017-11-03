@@ -44,3 +44,4 @@ vs v6       						-	win ratio: {u'#0,': 91, u'#1,': 9}
 vs v9       						-	win ratio: {u'#0,': 86, u'#1,': 14}
 vs v14      						-	win ratio: {u'#0,': 58, u'#1,': 42}
 vs v15      						-	win ratio: {u'#0,': 65, u'#1,': 35}
+vs v10 v6 v5						-	win ratio: {u'#0,': 13, u'#2,': 5, u'#1,': 6, u'#3,': 6}

@@ -12,6 +12,9 @@ namespace Halite2.hlt {
             this.yPos = yPos;
         }
 
+        public double X => GetXPos();
+        public double Y => GetYPos();
+
         public double GetXPos() {
             return xPos;
         }
@@ -49,6 +52,20 @@ namespace Halite2.hlt {
             double y = target.GetYPos() + radius * Math.Sin(angleRad);
 
             return new Position(x, y);
+        }
+
+        public Position GetClosestPointRelative(Position target, int thrust)
+        {
+            var closestPos = GetClosestPoint(target);
+            double angleRad = target.OrientTowardsInRad(this);
+
+            double x = GetXPos() - thrust * Math.Sign(Math.Cos(angleRad));
+            double y = GetYPos() - thrust * Math.Sign(Math.Sin(angleRad));
+
+            var closestRelative = new Position(x, y);
+            if (GetDistanceTo(closestPos) < GetDistanceTo(closestRelative))
+                return closestPos;
+            return closestRelative;
         }
 
         public override bool Equals(Object o) {

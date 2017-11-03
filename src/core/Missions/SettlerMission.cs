@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using BotMarfu.core.Headquarter;
 using BotMarfu.core.Moves;
 using Halite2.hlt;
@@ -45,12 +46,6 @@ namespace BotMarfu.core.Missions
             var enemies = _navigator.FindNearestEnemyShips(ship, 4);
             if (enemies.Any())
             {
-                if (_status == Ship.DockingStatus.Undocked && _moves < 3)
-                {
-                    EnemiesInRange = enemies;
-                    EnemySpotted = true;
-                    return false;
-                }
                 if (_status == Ship.DockingStatus.Undocked)
                 {
                     var dockingEnemies = enemies.Where(x => x.Value.GetDockingProgress() > 0).ToArray();
@@ -60,6 +55,12 @@ namespace BotMarfu.core.Missions
                         EnemySpotted = true;
                         return false;
                     }
+                }
+                if (_status == Ship.DockingStatus.Undocked && _moves < 3)
+                {
+                    EnemiesInRange = enemies;
+                    EnemySpotted = true;
+                    return false;
                 }
                 if (_status != Ship.DockingStatus.Undocked)
                 {
@@ -79,7 +80,7 @@ namespace BotMarfu.core.Missions
                 return NullMove.Null;
             }
 
-            if (_status == Ship.DockingStatus.Docked)
+            if (_status != Ship.DockingStatus.Undocked)
                 return NullMove.Null;
 
             move = MoveOrDock(map, planet, ship);

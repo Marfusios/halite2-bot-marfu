@@ -51,6 +51,7 @@ namespace BotMarfu.core.Headquarter
                     if (m != MissionVoid.Null)
                     {
                         _bootstrapKillerShipId = reg.Captain.ShipId;
+                        RemoveShipFromStats(reg.Captain);
                         reg.Captain.AssignMission(m);
                         break;
                     }
@@ -111,19 +112,26 @@ namespace BotMarfu.core.Headquarter
 
             if (createdShips <= _general.InitialSettlersCount)
             {
-                return GenerateSettlerMission(shipCaptain, nearest, false, true);
+                return GenerateSettlerMission(shipCaptain, nearest, false);
+            }
+
+            if (shipCaptain.CurrentMission is AttackerMission)
+            {
+                var m = GenerateSettlerMission(shipCaptain, nearest, true);
+                if (m != MissionVoid.Null)
+                    return m;
             }
 
             var random = _random.NextDouble();
             if (random <= _general.SettlerRatio)
             {
-                var m = GenerateSettlerMission(shipCaptain, nearest, isNew, false);
+                var m = GenerateSettlerMission(shipCaptain, nearest, isNew);
                 if (m != MissionVoid.Null)
                     return m;
             }
-            if (random <= _general.AttackerRatio)
+            if (random > _general.SettlerRatio && random <= _general.AttackerRatio)
                 return GenerateAttackerMission(shipCaptain, nearest);
-            if (random <= _general.DefenderRatio)
+            if (random > _general.AttackerRatio && random <= _general.DefenderRatio)
             {
                 var m = GenerateDefenderMission(shipCaptain, nearest, isNew);
                 if (m != MissionVoid.Null)
@@ -227,7 +235,7 @@ namespace BotMarfu.core.Headquarter
         }
 
         
-        private IMission GenerateSettlerMission(ShipCaptain captain, Planet[] nearest, bool isNewShip, bool isInitialSettler)
+        private IMission GenerateSettlerMission(ShipCaptain captain, Planet[] nearest, bool isNewShip)
         {
             var planets = nearest
                 .Select(x => _planetToStrategy[x.GetId()])
@@ -264,7 +272,7 @@ namespace BotMarfu.core.Headquarter
                 planets = nearest
                     .Select(x => _planetToStrategy[x.GetId()])
                     .Where(x => x.CanAttackAggressive)
-                    .Take(_general.NearestPlanetCount)
+                    .Take(mustComplete ? 1 :_general.NearestPlanetCount)
                     .OrderByDescending(x => x.Planet.GetRadius())
                     .ToArray();
                 targetPlanet = GetTargetPlanet(planets, captain);
