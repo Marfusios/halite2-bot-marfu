@@ -40,6 +40,9 @@ namespace BotMarfu.core.Headquarter
 
             var player = _map.GetMyPlayer();
             var ships = player.GetShips();
+            var shipsSafe = ships.Take(150).ToArray();
+
+            DebugLog.AddLog(round, "SHIPS " + ships.Count);
 
             //if (round < 10 && ships.Count < 3)
             //{
@@ -55,7 +58,7 @@ namespace BotMarfu.core.Headquarter
             }
 
             var commands = new List<Move>();
-            foreach (var ship in ships)
+            foreach (var ship in shipsSafe)
             {
                 var found = _shipRegistrator.Find(_map, ship.Key);
                 var state = found.State;
@@ -110,9 +113,9 @@ namespace BotMarfu.core.Headquarter
                 foreach (var otherMove in extended)
                 {
                     if (Collision.TwoLineSegmentIntersect(m.GetShip(), m.FuturePosition, otherMove.GetShip(),
-                        otherMove.FuturePosition))
+                        otherMove.FuturePosition, round))
                     {
-                        //DebugLog.AddLog($"Two line intersection ship1: {m.GetShip().GetId()} ship2: {otherMove.GetShip().GetId()}");
+                        //DebugLog.AddLog(round, $"Two line intersection ship1: {m.GetShip().GetId()} ship2: {otherMove.GetShip().GetId()}");
                         collision = true;
                         break;
                     }

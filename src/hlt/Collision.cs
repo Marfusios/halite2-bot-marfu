@@ -61,9 +61,10 @@ namespace Halite2.hlt
         }
 
 
-        public static bool TwoLineSegmentIntersect(Position firstStart, Position firstEnd, Position secondStart, Position secondEnd)
+        public static bool TwoLineSegmentIntersect(Position firstStart, Position firstEnd, 
+            Position secondStart, Position secondEnd, int round)
         {
-            return FindIntersection(new Line(firstStart, firstEnd), new Line(secondStart, secondEnd));
+            return FindIntersection(new Line(firstStart, firstEnd), new Line(secondStart, secondEnd), round);
         }
 
         public struct Line
@@ -84,9 +85,9 @@ namespace Halite2.hlt
             public double Y2 { get; set; }
         }
 
-        public static bool FindIntersection(Line lineA, Line lineB)
+        public static bool FindIntersection(Line lineA, Line lineB, int round)
         {
-            const double tol = 0.00001f;
+            var tol = round < 10 ? Constants.SHIP_RADIUS * 2 + 0.02 : 0.00001f;
 
             double x1 = lineA.X1, y1 = lineA.Y1;
             double x2 = lineA.X2, y2 = lineA.Y2;
@@ -98,25 +99,29 @@ namespace Halite2.hlt
             if (Math.Abs(x1 - x2) < tol && Math.Abs(x3 - x4) < tol && Math.Abs(x1 - x3) < tol)
             {
                 //throw new Exception("Both lines overlap vertically, ambiguous intersection points.");
-                return false;
+                //DebugLog.AddLog("Both lines overlap vertically, ambiguous intersection points.");
+                return true;
             }
 
             //equations of the form y=c (two horizontal lines)
             if (Math.Abs(y1 - y2) < tol && Math.Abs(y3 - y4) < tol && Math.Abs(y1 - y3) < tol)
             {
                 //throw new Exception("Both lines overlap horizontally, ambiguous intersection points.");
-                return false;
+                //DebugLog.AddLog("Both lines overlap horizontally, ambiguous intersection points.");
+                return true;
             }
 
             //equations of the form x=c (two vertical lines)
             if (Math.Abs(x1 - x2) < tol && Math.Abs(x3 - x4) < tol)
             {
+                //DebugLog.AddLog("!!! 1");
                 return false;
             }
 
             //equations of the form y=c (two horizontal lines)
             if (Math.Abs(y1 - y2) < tol && Math.Abs(y3 - y4) < tol)
             {
+                //DebugLog.AddLog("!!! 2");
                 return false;
             }
 

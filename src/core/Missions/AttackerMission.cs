@@ -26,7 +26,7 @@ namespace BotMarfu.core.Missions
 
         public bool EnemySpotted { get; private set; }
         public Dictionary<int, Ship> EnemiesInRange { get; private set; }
-        public bool Important { get; } = false;
+        public bool Important => false;
 
         public bool CanExecute(GameMap map, Ship ship)
         {
@@ -37,9 +37,9 @@ namespace BotMarfu.core.Missions
                 return false;
             if (planet.GetOwner() == map.GetMyPlayerId())
                 return false;
-            if (_lastVoidMoves > 3)
+            if (_lastVoidMoves > 5)
                 return false;
-            if (!_mustCompleteMission && _moves < 3)
+            if (!_mustCompleteMission && _moves < 2)
             {
                 EnemiesInRange = _navigator.FindNearestEnemyShips(ship);
                 if (EnemiesInRange.Any())

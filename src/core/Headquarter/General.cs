@@ -10,15 +10,18 @@ namespace BotMarfu.core.Headquarter
 
         public double SettlerRatio { get; private set; }
         public double AttackerRatio { get; private set; }
-        public double DefenderRatio { get; private set; }
+        public double AttackerFarRatio { get; private set; } = 1;
+        public double DefenderRatio { get; private set; } = 1;
 
         public int InitialSettlersCount { get; private set; } = 3;
         public int DefenderMaxRounds { get; } = 10;
-        public int NearestPlanetCount { get; private set; } = 2;
-        public double NearestPlanetMaxDistanceRatio { get; private set; } = 1.8;
+        public int NearestPlanetCount { get; private set; } = 3;
+        public double NearestPlanetMaxDistanceRatio { get; private set; } = 1.7;
         public int EnemyCheckRadius { get; private set; } = 1;
         public int EnemyCheckRadiusForNew { get; private set; } = 3;
         public int KillersPerEnemyShip { get; private set; } = 2;
+
+        public int NearestPlanetToCenterSkipCount(int round) => round < (_twoPlayers ? 50 : 80) ? NearestPlanetCount - 1 : 0;
 
         public int BootstrapKillerMisionMaxRange { get; private set; }
 
@@ -32,18 +35,16 @@ namespace BotMarfu.core.Headquarter
                 NearestPlanetCount = 2;
                 SettlerRatio = 0.8;
                 AttackerRatio = 1;
-                DefenderRatio = 1;
 
                 BootstrapKillerMisionMaxRange = 10 * Constants.MAX_SPEED;
 
                 return;
             }
 
-            InitialSettlersCount = 20;
-            NearestPlanetCount = 2;
+            InitialSettlersCount = 16;
+            NearestPlanetCount = 3;
             SettlerRatio = 0.9;
             AttackerRatio = 1;
-            DefenderRatio = 1;
 
             BootstrapKillerMisionMaxRange = 8 * Constants.MAX_SPEED;
         }
@@ -87,13 +88,15 @@ namespace BotMarfu.core.Headquarter
             {
                 //DebugLog.AddLog(round, $"[GENERAL] 2 - adjusting strategy for winning. Me: {me}, Second: {second.Value}");
                 SettlerRatio = 0.4;
-                AttackerRatio = 1;
+                AttackerRatio = 0.7;
+                AttackerFarRatio = 1;
             }
             else
             {
                 //DebugLog.AddLog(round, $"[GENERAL] 2 - adjusting strategy for loosing. First: {first.Value}, Me: {me}");
                 SettlerRatio = 0.7;
-                AttackerRatio = 1;
+                AttackerRatio = 0.85;
+                AttackerFarRatio = 1;
             }
         }
 
@@ -107,13 +110,15 @@ namespace BotMarfu.core.Headquarter
             {
                 //DebugLog.AddLog(round, $"[GENERAL] 4 - adjusting strategy for winning. Me: {me}, Second: {second.Value}");
                 SettlerRatio = 0.6;
-                AttackerRatio = 1;
+                AttackerRatio = 0.85;
+                AttackerFarRatio = 1;
             }
             else
             {
                 //DebugLog.AddLog(round, $"[GENERAL] 4 - adjusting strategy for loosing. First: {first.Value}, Me: {me}");
                 SettlerRatio = 0.8;
                 AttackerRatio = 1;
+                AttackerFarRatio = 1;
             }
         }
     }

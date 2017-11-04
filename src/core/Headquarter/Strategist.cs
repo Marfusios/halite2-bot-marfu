@@ -19,7 +19,7 @@ namespace BotMarfu.core.Headquarter
         private readonly IDictionary<int, EnemyShipStrategy> _enemyShipToStrategy = new Dictionary<int, EnemyShipStrategy>();
 
         private int _round;
-        private readonly Dictionary<int, int> _initialShipToPlanet = new Dictionary<int, int>();
+        //private readonly Dictionary<int, int> _initialShipToPlanet = new Dictionary<int, int>();
         private int _bootstrapKillerShipId = -1;
 
         public Strategist(GameMap map, General general, Navigator navigator, ShipRegistrator registrator)
@@ -33,7 +33,7 @@ namespace BotMarfu.core.Headquarter
             _registrator = registrator;
 
             FillPlanets();
-            InitializeInitShipToPlanet();
+            //InitializeInitShipToPlanet();
         }
 
         public void Update(int round)
@@ -112,12 +112,12 @@ namespace BotMarfu.core.Headquarter
 
             if (createdShips <= _general.InitialSettlersCount)
             {
-                return GenerateSettlerMission(shipCaptain, nearest, false);
+                return GenerateSettlerMission(shipCaptain, nearest, false, createdShips <= 3);
             }
 
             if (shipCaptain.CurrentMission is AttackerMission)
             {
-                var m = GenerateSettlerMission(shipCaptain, nearest, true);
+                var m = GenerateSettlerMission(shipCaptain, nearest, true, false, true);
                 if (m != MissionVoid.Null)
                     return m;
             }
@@ -131,7 +131,13 @@ namespace BotMarfu.core.Headquarter
             }
             if (random > _general.SettlerRatio && random <= _general.AttackerRatio)
                 return GenerateAttackerMission(shipCaptain, nearest);
-            if (random > _general.AttackerRatio && random <= _general.DefenderRatio)
+            if (random > _general.AttackerRatio && random <= _general.AttackerFarRatio)
+            {
+                var m = GenerateAttackerFarMission(shipCaptain, nearest);
+                if (m != MissionVoid.Null)
+                    return m;
+            }
+            if (random > _general.AttackerFarRatio && random <= _general.DefenderRatio)
             {
                 var m = GenerateDefenderMission(shipCaptain, nearest, isNew);
                 if (m != MissionVoid.Null)
@@ -153,44 +159,44 @@ namespace BotMarfu.core.Headquarter
                 .FirstOrDefault();
             if(enemy == null)
                 return MissionVoid.Null;
-            return new KillerMission(enemy.GetId(), enemy.GetOwner(), false);
+            return new KillerMission(enemy.GetId(), enemy.GetOwner(), true);
         }
 
-        private void InitializeInitShipToPlanet()
-        {
-            var ships = _map.GetMyPlayer().GetShips();
-            var shipsToPlanet = ships.ToDictionary(xx => xx.Key, x => new
-                {
-                    ship = x.Value,
-                    planets = _map
-                        .GetAllPlanets()
-                        .Select(y => new
-                        {
-                            dist = x.Value.GetDistanceTo(y.Value),
-                            planet = y.Value
-                        })
-                        .OrderBy(z => z.dist)
-                        .Take(3)
-                        .ToArray()
-                })
-                .OrderBy(x => x.Value.planets[0].dist)
-                .ToArray();
+        //private void InitializeInitShipToPlanet()
+        //{
+        //    var ships = _map.GetMyPlayer().GetShips();
+        //    var shipsToPlanet = ships.ToDictionary(xx => xx.Key, x => new
+        //        {
+        //            ship = x.Value,
+        //            planets = _map
+        //                .GetAllPlanets()
+        //                .Select(y => new
+        //                {
+        //                    dist = x.Value.GetDistanceTo(y.Value),
+        //                    planet = y.Value
+        //                })
+        //                .OrderBy(z => z.dist)
+        //                .Take(3)
+        //                .ToArray()
+        //        })
+        //        .OrderBy(x => x.Value.planets[0].dist)
+        //        .ToArray();
 
-            var lockedPlanets = new HashSet<int>();
+        //    var lockedPlanets = new HashSet<int>();
 
-            foreach (var ship in shipsToPlanet)
-            {
-                foreach (var planet in ship.Value.planets)
-                {
-                    var planetId = planet.planet.GetId();
-                    if (lockedPlanets.Contains(planetId))
-                        continue;
-                    lockedPlanets.Add(planetId);
-                    _initialShipToPlanet.Add(ship.Key, planetId);
-                    break;
-                }
-            }
-        }
+        //    foreach (var ship in shipsToPlanet)
+        //    {
+        //        foreach (var planet in ship.Value.planets)
+        //        {
+        //            var planetId = planet.planet.GetId();
+        //            if (lockedPlanets.Contains(planetId))
+        //                continue;
+        //            lockedPlanets.Add(planetId);
+        //            _initialShipToPlanet.Add(ship.Key, planetId);
+        //            break;
+        //        }
+        //    }
+        //}
 
         private Dictionary<int, Ship> GetNearestEnemyShips(ShipCaptain shipCaptain)
         {
@@ -228,27 +234,40 @@ namespace BotMarfu.core.Headquarter
             }
         }
 
-        private IMission GenerateSettlerMissionForBootstrap(ShipCaptain captain)
-        {
-            var planetId = _initialShipToPlanet[captain.ShipId];
-            return new SettlerMission(planetId, _navigator, this);
-        }
+        //private IMission GenerateSettlerMissionForBootstrap(ShipCaptain captain)
+        //{
+        //    var planetId = _initialShipToPlanet[captain.ShipId];
+        //    return new SettlerMission(planetId, _navigator, this);
+        //}
 
         
-        private IMission GenerateSettlerMission(ShipCaptain captain, Planet[] nearest, bool isNewShip)
+        private IMission GenerateSettlerMission(ShipCaptain captain, Planet[] nearest, bool isNewShip, 
+            bool isStart = false, bool force = false)
         {
+            var nearestPlanet = nearest.FirstOrDefault();
+
             var planets = nearest
                 .Select(x => _planetToStrategy[x.GetId()])
-                .Where(x => x.CanSettle(isNewShip, _round))
-                .Take(isNewShip ? 1 : _general.NearestPlanetCount)
+                .Where(x => force ? x.CanSettleForce : x.CanSettle(isNewShip, _round))
+                .Take(_general.NearestPlanetCount)
                 .ToArray();
 
-            var targetPlanet = GetTargetPlanet(planets, captain);
-            if(targetPlanet == null)
+
+            PlanetStrategy target = null;
+            if (!isStart && nearestPlanet != null && Equals(nearestPlanet, planets.FirstOrDefault()?.Planet))
+            {
+                target = _planetToStrategy[nearestPlanet.GetId()];
+            }
+            else
+            {
+                target = GetTargetPlanet(planets, captain);
+            }
+
+            if (target == null)
                 return MissionVoid.Null;
 
-            var planetId = targetPlanet.PlanetId;
-            targetPlanet.ShipsForwardedToSettle.Add(captain.ShipId);
+            var planetId = target.PlanetId;
+            target.ShipsForwardedToSettle.Add(captain.ShipId);
 
             return new SettlerMission(planetId, _navigator, this);
         }
@@ -284,6 +303,32 @@ namespace BotMarfu.core.Headquarter
             targetPlanet.ShipsForwardedToAttack.Add(captain.ShipId);
 
             return new AttackerMission(planetId, _navigator, mustComplete);
+        }
+
+        private IMission GenerateAttackerFarMission(ShipCaptain captain, Planet[] nearest)
+        {
+            var farrest = nearest
+                .Select(x => new
+                {
+                    planet = x,
+                    size = x.GetRadius(),
+                    distanceToCenter = x.GetDistanceTo(_navigator.MapCenter)
+                })
+                .OrderByDescending(x => x.distanceToCenter);
+
+            var planets = farrest
+                .Select(x => _planetToStrategy[x.planet.GetId()])
+                .Where(x => x.CanAttack)
+                .ToArray();
+            var targetPlanet = GetTargetPlanet(planets, captain);
+            if (targetPlanet == null)
+                return MissionVoid.Null;
+            
+
+            var planetId = targetPlanet.PlanetId;
+            targetPlanet.ShipsForwardedToAttack.Add(captain.ShipId);
+
+            return new AttackerMission(planetId, _navigator, true);
         }
 
         private IMission GenerateDefenderMission(ShipCaptain captain, Planet[] nearest, bool isNewShip)
@@ -342,7 +387,7 @@ namespace BotMarfu.core.Headquarter
             {
                 if(Math.Abs(planet.Key - minDist) < 0.00001)
                     continue;
-                if (planet.Key % minDist < _general.NearestPlanetMaxDistanceRatio)
+                if (planet.Key / minDist < _general.NearestPlanetMaxDistanceRatio)
                     shouldUseMinDist = false;
             }
 
@@ -351,7 +396,7 @@ namespace BotMarfu.core.Headquarter
 
             var ordered = formatted
                 .OrderBy(x => x.Value.distanceToCenter)
-                .Skip(1)
+                .Skip(_general.NearestPlanetToCenterSkipCount(_round))
                 .OrderByDescending(x => x.Value.size)
                 .ToArray();
             if (ordered.Any())
@@ -423,7 +468,12 @@ namespace BotMarfu.core.Headquarter
                                                                 Planet.GetDockingSpots() +
                                                                 (isNew ? 1 : 0) && // settle to n-1 if not new ship
                                                             !SomethingIsDocking;
-            
+
+            public bool CanSettleForce => IsOurOrFree &&
+                                          !Planet.IsFull() &&
+                                          !SomethingIsDocking;
+
+
             public bool CanAttack => (IsForeign || SomethingIsDocking) &&
                                      ShipsForwardedToAttack.Count < 2 * Planet.GetDockingSpots();
 

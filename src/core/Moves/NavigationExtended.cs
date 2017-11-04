@@ -12,7 +12,7 @@ namespace BotMarfu.core.Moves
                Entity dockTarget,
                int maxThrust)
         {
-            int maxCorrections = 100;
+            int maxCorrections = 90;
             bool avoidObstacles = true;
             double angularStepRad = Math.PI / 180.0;
             Position targetPos = ship.GetClosestPoint(dockTarget);
