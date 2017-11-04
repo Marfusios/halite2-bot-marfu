@@ -42,7 +42,6 @@ namespace BotMarfu.core.Headquarter
             var ships = player.GetShips();
             var shipsSafe = ships.Take(150).ToArray();
 
-            DebugLog.AddLog(round, "SHIPS " + ships.Count);
 
             //if (round < 10 && ships.Count < 3)
             //{
@@ -131,16 +130,16 @@ namespace BotMarfu.core.Headquarter
                     //    collisionThrust = Math.Min(otherMove.GetThrust(), collisionThrust);
                     //    break;
                     //}
-                    //if (round < 10)
-                    //{
-                        //distance = m.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
-                        //if (distance < m.GetShip().GetRadius() + 7)
-                        //{
-                        //    collision = true;
-                        //    break;
-                        //}
-                        
-                    //}
+                    if (round < 10)
+                    {
+                        distance = m.FuturePosition.GetDistanceTo(otherMove.FuturePosition);
+                        if (distance < m.GetShip().GetRadius() + 7.1)
+                        {
+                            collision = true;
+                            break;
+                        }
+
+                    }
                 }
                 return collision ? NullMove.Null :
                     safeCollision ? m.Clone(Math.Max(collisionThrust-1, 0)) : m;

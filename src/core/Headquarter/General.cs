@@ -6,7 +6,7 @@ namespace BotMarfu.core.Headquarter
 {
     class General
     {
-        private bool _twoPlayers;
+        public bool TwoPlayers { get; private set; }
 
         public double SettlerRatio { get; private set; }
         public double AttackerRatio { get; private set; }
@@ -21,15 +21,15 @@ namespace BotMarfu.core.Headquarter
         public int EnemyCheckRadiusForNew { get; private set; } = 3;
         public int KillersPerEnemyShip { get; private set; } = 2;
 
-        public int NearestPlanetToCenterSkipCount(int round) => round < (_twoPlayers ? 40 : 80) ? NearestPlanetCount - 1 : 0;
+        public int NearestPlanetToCenterSkipCount(int round) => round < (TwoPlayers ? 30 : 80) ? NearestPlanetCount - 1 : 0;
 
         public int BootstrapKillerMisionMaxRange { get; private set; }
 
         public void AdjustInitialStrategy(GameMap map)
         {
-            _twoPlayers = map.GetAllPlayers().Count <= 2;
+            TwoPlayers = map.GetAllPlayers().Count <= 2;
 
-            if (_twoPlayers)
+            if (TwoPlayers)
             {
                 InitialSettlersCount = 12;
                 NearestPlanetCount = 2;
@@ -60,7 +60,7 @@ namespace BotMarfu.core.Headquarter
             if (winningRatio.Count() <= 1)
                 return;
 
-            if(_twoPlayers)
+            if(TwoPlayers)
                 AdjustGlobalStrategy2Players(map, winningRatio, round);
             else
                 AdjustGlobalStrategy4Players(map, winningRatio, round);

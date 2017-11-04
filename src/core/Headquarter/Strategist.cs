@@ -119,8 +119,19 @@ namespace BotMarfu.core.Headquarter
             {
                 var m = GenerateSettlerMission(shipCaptain, nearest, true, false, true);
                 if (m != MissionVoid.Null)
+                {
                     return m;
+                }
             }
+
+            //if (_general.TwoPlayers && isNew)
+            //{
+            //    var m = GenerateSettlerFarMission(shipCaptain, nearest);
+            //    if (m != MissionVoid.Null)
+            //    {
+            //        return m;
+            //    }
+            //}
 
             var random = _random.NextDouble();
             if (random <= _general.SettlerRatio)
@@ -260,6 +271,42 @@ namespace BotMarfu.core.Headquarter
             }
             else
             {
+                target = GetTargetPlanet(planets, captain);
+            }
+
+            if (target == null)
+                return MissionVoid.Null;
+
+            var planetId = target.PlanetId;
+            target.ShipsForwardedToSettle.Add(captain.ShipId);
+
+            return new SettlerMission(planetId, _navigator, this);
+        }
+
+        private IMission GenerateSettlerFarMission(ShipCaptain captain, Planet[] nearest)
+        {
+            var nearestPlanet = nearest.FirstOrDefault();
+
+            var planets = nearest
+                .Select(x => _planetToStrategy[x.GetId()])
+                .Where(x => x.CanSettle(true, _round))
+                .Take(_general.NearestPlanetCount)
+                .ToArray();
+
+
+            PlanetStrategy target = null;
+            if (nearestPlanet != null && Equals(nearestPlanet, planets.FirstOrDefault()?.Planet))
+            {
+                target = _planetToStrategy[nearestPlanet.GetId()];
+            }
+            else
+            {
+                planets = nearest
+                    .Select(x => _planetToStrategy[x.GetId()])
+                    .Where(x => x.CanSettleFar)
+                    .Take(_general.NearestPlanetCount)
+                    .ToArray();
+
                 target = GetTargetPlanet(planets, captain);
             }
 
@@ -476,6 +523,10 @@ namespace BotMarfu.core.Headquarter
             public bool CanSettleForce => IsOurOrFree &&
                                           !Planet.IsFull() &&
                                           !SomethingIsDocking;
+
+            public bool CanSettleFar => IsFree &&
+                                        ShipsForwardedToSettle.Count < 1 &&
+                                        !SomethingIsDocking;
 
 
             public bool CanAttack => (IsForeign || SomethingIsDocking) &&

@@ -99,7 +99,7 @@ namespace Halite2.hlt
             if (Math.Abs(x1 - x2) < tol && Math.Abs(x3 - x4) < tol && Math.Abs(x1 - x3) < tol)
             {
                 //throw new Exception("Both lines overlap vertically, ambiguous intersection points.");
-                //DebugLog.AddLog("Both lines overlap vertically, ambiguous intersection points.");
+                //DebugLog.AddLog(round, "Both lines overlap vertically, ambiguous intersection points.");
                 return true;
             }
 
@@ -107,21 +107,21 @@ namespace Halite2.hlt
             if (Math.Abs(y1 - y2) < tol && Math.Abs(y3 - y4) < tol && Math.Abs(y1 - y3) < tol)
             {
                 //throw new Exception("Both lines overlap horizontally, ambiguous intersection points.");
-                //DebugLog.AddLog("Both lines overlap horizontally, ambiguous intersection points.");
+                //DebugLog.AddLog(round, "Both lines overlap horizontally, ambiguous intersection points.");
                 return true;
             }
 
             //equations of the form x=c (two vertical lines)
             if (Math.Abs(x1 - x2) < tol && Math.Abs(x3 - x4) < tol)
             {
-                //DebugLog.AddLog("!!! 1");
+                //DebugLog.AddLog(round, "!!! 1");
                 return false;
             }
 
             //equations of the form y=c (two horizontal lines)
             if (Math.Abs(y1 - y2) < tol && Math.Abs(y3 - y4) < tol)
             {
-                //DebugLog.AddLog("!!! 2");
+                //DebugLog.AddLog(round, "!!! 2");
                 return false;
             }
 
