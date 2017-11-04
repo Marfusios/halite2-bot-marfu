@@ -39,7 +39,7 @@ namespace BotMarfu.core.Missions
                 return false;
             if (_lastVoidMoves > 5)
                 return false;
-            if (!_mustCompleteMission && _moves < 2)
+            if (!_mustCompleteMission && _moves < 3)
             {
                 EnemiesInRange = _navigator.FindNearestEnemyShips(ship);
                 if (EnemiesInRange.Any())

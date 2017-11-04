@@ -394,13 +394,17 @@ namespace BotMarfu.core.Headquarter
             if (shouldUseMinDist)
                 return formatted[minDist].strategy;
 
-            var ordered = formatted
-                .OrderBy(x => x.Value.distanceToCenter)
-                .Skip(_general.NearestPlanetToCenterSkipCount(_round))
-                .OrderByDescending(x => x.Value.size)
-                .ToArray();
-            if (ordered.Any())
-                return ordered.First().Value.strategy;
+            var skipCount = _general.NearestPlanetToCenterSkipCount(_round);
+            if (skipCount > 0)
+            {
+                var ordered = formatted
+                    .OrderBy(x => x.Value.distanceToCenter)
+                    .Skip(skipCount)
+                    .OrderByDescending(x => x.Value.size)
+                    .ToArray();
+                if (ordered.Any())
+                    return ordered.First().Value.strategy;
+            }
             return formatted.First().Value.strategy;
         }
 

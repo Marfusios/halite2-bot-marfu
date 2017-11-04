@@ -21,7 +21,7 @@ namespace BotMarfu.core.Headquarter
         public int EnemyCheckRadiusForNew { get; private set; } = 3;
         public int KillersPerEnemyShip { get; private set; } = 2;
 
-        public int NearestPlanetToCenterSkipCount(int round) => round < (_twoPlayers ? 50 : 80) ? NearestPlanetCount - 1 : 0;
+        public int NearestPlanetToCenterSkipCount(int round) => round < (_twoPlayers ? 40 : 80) ? NearestPlanetCount - 1 : 0;
 
         public int BootstrapKillerMisionMaxRange { get; private set; }
 

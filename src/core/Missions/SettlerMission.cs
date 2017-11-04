@@ -56,7 +56,7 @@ namespace BotMarfu.core.Missions
                         return false;
                     }
                 }
-                if (_status == Ship.DockingStatus.Undocked && _moves < 2)
+                if (_status == Ship.DockingStatus.Undocked && _moves < 3)
                 {
                     EnemiesInRange = enemies;
                     EnemySpotted = true;
